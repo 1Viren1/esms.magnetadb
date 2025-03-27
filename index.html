@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Environmental Audit Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -85,8 +86,6 @@
       font-weight: bold;
       color: green;
     }
-
-    /* Mobile Styles */
     @media (max-width: 600px) {
       form, .form-block {
         margin: 10px;
@@ -104,13 +103,6 @@
         border: none;
         border-bottom: 1px solid #ddd;
       }
-      td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        display: block;
-        margin-bottom: 5px;
-        color: #555;
-      }
     }
   </style>
 </head>
@@ -119,18 +111,26 @@
 <h2>Environmental Audit Tracker</h2>
 
 <form id="auditForm">
-  <label>Beneficiary Name:</label>
-  <input type="text" id="beneficiary">
+  <label>Sub Project Name:</label>
+  <input type="text" id="beneficiary" />
+
   <label>Address:</label>
-  <input type="text" id="address">
+  <input type="text" id="address" />
+
   <label>Date of Site Visit:</label>
-  <input type="text" id="visitDate">
+  <input type="text" id="visitDate" />
+
   <label>Visit Conducted By:</label>
-  <input type="text" id="visitBy">
+  <input type="text" id="visitBy" />
 
   <table>
     <thead>
-      <tr><th>Sr. No.</th><th>Observations</th><th>Corrective Actions</th><th>Timeline</th></tr>
+      <tr>
+        <th>Sr. No.</th>
+        <th>Observations</th>
+        <th>Corrective Actions</th>
+        <th>Timeline</th>
+      </tr>
     </thead>
     <tbody id="observationTable"></tbody>
   </table>
@@ -141,6 +141,7 @@
 
 <div style="text-align:center;">
   <button onclick="deleteAllEntries()" class="delete-btn">Delete All Entries</button>
+  <button onclick="exportToPDF()">Export All Entries as PDF</button>
 </div>
 
 <div id="savedFormsContainer"></div>
@@ -221,7 +222,7 @@
       div.innerHTML = `
         <h3>Saved Entry</h3>
         <p><strong>Timestamp (IST):</strong> ${data.timestamp}</p>
-        <p><strong>Beneficiary:</strong> ${data.beneficiary}</p>
+        <p><strong>Sub Project Name:</strong> ${data.beneficiary}</p>
         <p><strong>Address:</strong> ${data.address}</p>
         <p><strong>Visit Date:</strong> ${data.visitDate}</p>
         <p><strong>Visited By:</strong> ${data.visitBy}</p>
@@ -277,6 +278,41 @@
     }
     alert("All entries have been deleted.");
     loadSavedEntries();
+  };
+
+  window.exportToPDF = async function () {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    const q = query(collection(db, "auditForms"), orderBy("timestamp", "desc"));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((docSnap, i) => {
+      const d = docSnap.data();
+      doc.setFontSize(12);
+      doc.text(`Entry ${i + 1}`, 10, y);
+      y += 8;
+      doc.text(`Timestamp: ${d.timestamp}`, 10, y); y += 7;
+      doc.text(`Sub Project: ${d.beneficiary}`, 10, y); y += 7;
+      doc.text(`Address: ${d.address}`, 10, y); y += 7;
+      doc.text(`Visit Date: ${d.visitDate}`, 10, y); y += 7;
+      doc.text(`Visited By: ${d.visitBy}`, 10, y); y += 7;
+
+      d.observations.forEach((obs, idx) => {
+        doc.text(`Obs ${idx + 1}: ${obs.observation}`, 10, y); y += 6;
+        doc.text(`Action: ${obs.action}`, 10, y); y += 6;
+        doc.text(`Timeline: ${obs.timeline}`, 10, y); y += 8;
+      });
+
+      y += 10;
+      if (y > 260) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save("Environmental_Audit_Entries.pdf");
   };
 
   window.onload = () => {
