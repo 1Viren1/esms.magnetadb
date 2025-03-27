@@ -3,197 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <title>Environmental Audit Tracker</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
-      authDomain: "environmental-audit-tracker.firebaseapp.com",
-      projectId: "environmental-audit-tracker",
-      storageBucket: "environmental-audit-tracker.appspot.com",
-      messagingSenderId: "865145801207",
-      appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    window.saveForm = async function () {
-      const beneficiary = document.getElementById("beneficiary").value;
-      const address = document.getElementById("address").value;
-      const visitDate = document.getElementById("visitDate").value;
-      const visitBy = document.getElementById("visitBy").value;
-      const rows = document.querySelectorAll("#observationTable tr");
-
-      const data = [];
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("textarea");
-        data.push({
-          observation: cells[0].value,
-          action: cells[1].value,
-          timeline: cells[2].value
-        });
-      });
-
-      const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-
-      await addDoc(collection(db, "auditForms"), {
-        timestamp,
-        beneficiary,
-        address,
-        visitDate,
-        visitBy,
-        observations: data,
-        photos: []
-      });
-
-      document.getElementById("uploadStatus").innerText = "Form saved successfully!";
-      document.getElementById("auditForm").reset();
-      const tbody = document.getElementById("observationTable");
-      tbody.innerHTML = "";
-      for (let i = 1; i <= 5; i++) {
-        tbody.innerHTML += `
-          <tr>
-            <td>${i}</td>
-            <td><textarea></textarea></td>
-            <td><textarea></textarea></td>
-            <td><textarea></textarea></td>
-          </tr>`;
-      }
-
-      loadSavedEntries();
-    };
-
-    async function loadSavedEntries() {
-      const container = document.getElementById("savedFormsContainer");
-      container.innerHTML = "";
-      const q = query(collection(db, "auditForms"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-
-      querySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const div = document.createElement("div");
-        div.classList.add("form-block");
-
-        let photosHTML = "";
-        if (data.photos && data.photos.length > 0) {
-          photosHTML = `<div class="saved-photos"><h4>Uploaded Photos:</h4>`;
-          data.photos.forEach(url => {
-            photosHTML += `<img src="${url}" alt="Uploaded Photo">`;
-          });
-          photosHTML += `</div>`;
-        }
-
-        div.innerHTML = `
-          <h3>Saved Entry</h3>
-          <p><strong>Timestamp (IST):</strong> ${data.timestamp}</p>
-          <p><strong>Beneficiary:</strong> ${data.beneficiary}</p>
-          <p><strong>Address:</strong> ${data.address}</p>
-          <p><strong>Visit Date:</strong> ${data.visitDate}</p>
-          <p><strong>Visited By:</strong> ${data.visitBy}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Sr. No.</th>
-                <th>Observations</th>
-                <th>Corrective Actions</th>
-                <th>Timeline</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.observations.map((item, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${item.observation}</td>
-                  <td>${item.action}</td>
-                  <td>${item.timeline}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-          ${photosHTML}
-          <div class="delete-entry">
-            <input type="password" placeholder="Enter password to delete this entry" id="delete-${docSnap.id}" />
-            <button onclick="deleteEntry('${docSnap.id}')">Delete Entry</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    window.deleteEntry = async function (id) {
-      const passwordInput = document.getElementById(`delete-${id}`);
-      const enteredPassword = passwordInput.value;
-      if (enteredPassword !== "1111") {
-        alert("Incorrect password. Deletion not allowed.");
-        return;
-      }
-      await deleteDoc(doc(db, "auditForms", id));
-      alert("Entry deleted successfully.");
-      loadSavedEntries();
-    };
-
-    window.deleteAllEntries = async function () {
-      const enteredPassword = document.getElementById("deletePassword").value;
-      if (enteredPassword !== "1111") {
-        alert("Incorrect password. Deletion not allowed.");
-        return;
-      }
-      const q = query(collection(db, "auditForms"));
-      const querySnapshot = await getDocs(q);
-      for (const doc of querySnapshot.docs) {
-        await deleteDoc(doc.ref);
-      }
-      alert("All entries have been deleted.");
-      loadSavedEntries();
-    };
-
-    window.onload = () => {
-      const tbody = document.getElementById("observationTable");
-      for (let i = 1; i <= 5; i++) {
-        tbody.innerHTML += `
-          <tr>
-            <td>${i}</td>
-            <td><textarea></textarea></td>
-            <td><textarea></textarea></td>
-            <td><textarea></textarea></td>
-          </tr>`;
-      }
-      loadSavedEntries();
-    };
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
-    h2, h3 { text-align: center; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      padding: 20px;
+      margin: 0;
+    }
+    h2, h3 {
+      text-align: center;
+      color: #333;
+    }
     form, .form-block {
-      max-width: 1000px; margin: 30px auto; background: #fff;
-      padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: white;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
     }
-    label { font-weight: bold; display: block; margin-top: 15px; }
-    input[type="text"], input[type="password"], textarea {
-      width: 100%; padding: 8px; margin-top: 5px;
-      border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 15px;
+      color: #444;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    table, th, td { border: 1px solid #ddd; }
-    th, td { padding: 10px; vertical-align: top; }
-    textarea { height: 60px; resize: vertical; }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      vertical-align: top;
+    }
+    textarea {
+      height: 60px;
+      resize: vertical;
+    }
     button {
-      margin-top: 10px; padding: 8px 16px; background: #007BFF;
-      color: white; border: none; border-radius: 4px; cursor: pointer;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #1976d2;
+      color: white;
+      transition: background 0.3s ease;
     }
-    button:hover { background: #0056b3; }
-    .delete-entry input { width: calc(100% - 120px); display: inline-block; }
-    .delete-entry button {
-      background: red; margin-left: 10px;
+    button:hover {
+      background-color: #1565c0;
     }
-    .saved-photos img {
-      max-width: 150px; margin: 10px; border: 1px solid #ccc; border-radius: 5px;
+    .delete-btn {
+      background-color: #d32f2f;
     }
-    #uploadStatus { margin-top: 10px; color: green; font-weight: bold; }
+    .delete-btn:hover {
+      background-color: #b71c1c;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #uploadStatus {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 600px) {
+      form, .form-block {
+        margin: 10px;
+        padding: 15px;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      th {
+        background: #f0f0f0;
+        font-weight: bold;
+      }
+      td {
+        margin-bottom: 10px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+      }
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+      }
+    }
   </style>
 </head>
 <body>
@@ -218,16 +136,163 @@
   </table>
 
   <div id="uploadStatus"></div>
-  <button type="button" onclick="saveForm()">Save</button>
+  <button type="button" onclick="saveForm()">Save Entry</button>
 </form>
 
-<div id="deleteFormSection">
-  <label>Enter password to delete all saved entries:</label>
-  <input type="password" id="deletePassword" />
-  <button onclick="deleteAllEntries()">Delete All Entries</button>
+<div style="text-align:center;">
+  <button onclick="deleteAllEntries()" class="delete-btn">Delete All Entries</button>
 </div>
 
-<div class="saved-forms" id="savedFormsContainer"></div>
+<div id="savedFormsContainer"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
+    authDomain: "environmental-audit-tracker.firebaseapp.com",
+    projectId: "environmental-audit-tracker",
+    storageBucket: "environmental-audit-tracker.appspot.com",
+    messagingSenderId: "865145801207",
+    appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.saveForm = async function () {
+    const beneficiary = document.getElementById("beneficiary").value;
+    const address = document.getElementById("address").value;
+    const visitDate = document.getElementById("visitDate").value;
+    const visitBy = document.getElementById("visitBy").value;
+    const rows = document.querySelectorAll("#observationTable tr");
+
+    const data = [];
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("textarea");
+      data.push({
+        observation: cells[0].value,
+        action: cells[1].value,
+        timeline: cells[2].value
+      });
+    });
+
+    const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+
+    await addDoc(collection(db, "auditForms"), {
+      timestamp,
+      beneficiary,
+      address,
+      visitDate,
+      visitBy,
+      observations: data,
+      photos: []
+    });
+
+    document.getElementById("uploadStatus").innerText = "Form saved successfully!";
+    document.getElementById("auditForm").reset();
+    const tbody = document.getElementById("observationTable");
+    tbody.innerHTML = "";
+    for (let i = 1; i <= 5; i++) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i}</td>
+          <td><textarea></textarea></td>
+          <td><textarea></textarea></td>
+          <td><textarea></textarea></td>
+        </tr>`;
+    }
+
+    loadSavedEntries();
+  };
+
+  async function loadSavedEntries() {
+    const container = document.getElementById("savedFormsContainer");
+    container.innerHTML = "";
+    const q = query(collection(db, "auditForms"), orderBy("timestamp", "desc"));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const div = document.createElement("div");
+      div.classList.add("form-block", "fade-in");
+
+      div.innerHTML = `
+        <h3>Saved Entry</h3>
+        <p><strong>Timestamp (IST):</strong> ${data.timestamp}</p>
+        <p><strong>Beneficiary:</strong> ${data.beneficiary}</p>
+        <p><strong>Address:</strong> ${data.address}</p>
+        <p><strong>Visit Date:</strong> ${data.visitDate}</p>
+        <p><strong>Visited By:</strong> ${data.visitBy}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Sr. No.</th>
+              <th>Observations</th>
+              <th>Corrective Actions</th>
+              <th>Timeline</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.observations.map((item, index) => `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${item.observation}</td>
+                <td>${item.action}</td>
+                <td>${item.timeline}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <button class="delete-btn" onclick="deleteEntry('${docSnap.id}')">Delete Entry</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  window.deleteEntry = async function (id) {
+    const enteredPassword = prompt("Enter password to delete this entry:");
+    if (!confirm("Are you sure you want to delete this entry?")) return;
+    if (enteredPassword !== "1111") {
+      alert("Incorrect password. Deletion not allowed.");
+      return;
+    }
+    await deleteDoc(doc(db, "auditForms", id));
+    alert("Entry deleted successfully.");
+    loadSavedEntries();
+  };
+
+  window.deleteAllEntries = async function () {
+    const enteredPassword = prompt("Enter password to delete all entries:");
+    if (!confirm("Are you sure you want to delete all entries?")) return;
+    if (enteredPassword !== "1111") {
+      alert("Incorrect password. Deletion not allowed.");
+      return;
+    }
+    const q = query(collection(db, "auditForms"));
+    const querySnapshot = await getDocs(q);
+    for (const doc of querySnapshot.docs) {
+      await deleteDoc(doc.ref);
+    }
+    alert("All entries have been deleted.");
+    loadSavedEntries();
+  };
+
+  window.onload = () => {
+    const tbody = document.getElementById("observationTable");
+    for (let i = 1; i <= 5; i++) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i}</td>
+          <td><textarea></textarea></td>
+          <td><textarea></textarea></td>
+          <td><textarea></textarea></td>
+        </tr>`;
+    }
+    loadSavedEntries();
+  };
+</script>
 
 </body>
 </html>
