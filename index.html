@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Environmental Audit Tracker (with Progress Bar)</title>
+  <title>Environmental Audit Tracker</title>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     const firebaseConfig = {
@@ -57,9 +57,7 @@
               progressBar.value = progress;
               statusBox.innerText = "Uploading: " + file.name + " (" + Math.round(progress) + "%)";
             },
-            (error) => {
-              reject(error);
-            },
+            (error) => reject(error),
             async () => {
               const url = await getDownloadURL(uploadTask.snapshot.ref);
               photoURLs.push(url);
@@ -82,7 +80,6 @@
       statusBox.innerText = "Form and images saved successfully!";
       progressBar.style.display = "none";
       document.getElementById("auditForm").reset();
-
       const tbody = document.getElementById("observationTable");
       tbody.innerHTML = "";
       for (let i = 1; i <= 5; i++) {
@@ -94,12 +91,84 @@
             <td><textarea></textarea></td>
           </tr>`;
       }
+
+      loadSavedEntries();
+    };
+
+    async function loadSavedEntries() {
+      const container = document.getElementById("savedFormsContainer");
+      container.innerHTML = "";
+      const q = query(collection(db, "auditForms"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.classList.add("form-block");
+
+        let photosHTML = "";
+        if (data.photos && data.photos.length > 0) {
+          photosHTML = `<div class="saved-photos"><h4>Uploaded Photos:</h4>`;
+          data.photos.forEach(url => {
+            photosHTML += `<img src="${url}" alt="Uploaded Photo">`;
+          });
+          photosHTML += `</div>`;
+        }
+
+        div.innerHTML = `
+          <h3>Saved Entry</h3>
+          <p><strong>Timestamp (IST):</strong> ${data.timestamp}</p>
+          <p><strong>Beneficiary:</strong> ${data.beneficiary}</p>
+          <p><strong>Address:</strong> ${data.address}</p>
+          <p><strong>Visit Date:</strong> ${data.visitDate}</p>
+          <p><strong>Visited By:</strong> ${data.visitBy}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                <th>Observations</th>
+                <th>Corrective Actions</th>
+                <th>Timeline</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.observations.map((item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.observation}</td>
+                  <td>${item.action}</td>
+                  <td>${item.timeline}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          ${photosHTML}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    window.onload = () => {
+      const tbody = document.getElementById("observationTable");
+      for (let i = 1; i <= 5; i++) {
+        tbody.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td><textarea></textarea></td>
+            <td><textarea></textarea></td>
+            <td><textarea></textarea></td>
+          </tr>`;
+      }
+      loadSavedEntries();
     };
   </script>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
-    h2 { text-align: center; }
-    form { max-width: 1000px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2, h3 { text-align: center; }
+    form, .form-block {
+      max-width: 1000px; margin: 30px auto; background: #fff;
+      padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
     label { font-weight: bold; display: block; margin-top: 15px; }
     input[type="text"], input[type="file"], textarea {
       width: 100%; padding: 8px; margin-top: 5px;
@@ -114,15 +183,10 @@
       color: white; border: none; border-radius: 4px; cursor: pointer;
     }
     button:hover { background: #0056b3; }
-    #uploadStatus {
-      margin-top: 10px;
-      color: green;
-      font-weight: bold;
-    }
-    #uploadProgress {
-      width: 100%;
-      margin-top: 10px;
-      display: none;
+    #uploadStatus { margin-top: 10px; color: green; font-weight: bold; }
+    #uploadProgress { width: 100%; margin-top: 10px; display: none; }
+    .saved-photos img {
+      max-width: 150px; margin: 10px; border: 1px solid #ccc; border-radius: 5px;
     }
   </style>
 </head>
@@ -155,20 +219,7 @@
   <button type="button" onclick="saveForm()">Save</button>
 </form>
 
-<script>
-  window.onload = () => {
-    const tbody = document.getElementById("observationTable");
-    for (let i = 1; i <= 5; i++) {
-      tbody.innerHTML += `
-        <tr>
-          <td>${i}</td>
-          <td><textarea></textarea></td>
-          <td><textarea></textarea></td>
-          <td><textarea></textarea></td>
-        </tr>`;
-    }
-  };
-</script>
+<div class="saved-forms" id="savedFormsContainer"></div>
 
 </body>
 </html>
