@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audit & Monitoring Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase and jsPDF Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2canvas Script for accurate rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* Base Styles */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    .back-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .back-icon:hover { color: #e0e0e0; }
+    .report-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    .report-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .report-container label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .report-container input[type="text"],
+    .report-container select,
+    .report-container textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .report-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .report-container table thead {
+      background-color: #f2f2f2;
+    }
+    .report-container th, .report-container td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .report-container th {
+      font-weight: 600;
+    }
+    .table-title {
+      background-color: #ddd;
+      font-weight: bold;
+      text-align: center;
+      padding: 5px;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+      margin: 10px 5px 0 5px;
+      display: inline-block;
+    }
+    .btn:hover { background-color: #1565c0; }
+  </style>
+</head>
+<body>
+  <!-- Header with back button -->
+  <header>
+    <button class="back-icon" onclick="goBack()">&#8592;</button>
+    <h1>Audit & Monitoring Reports</h1>
+  </header>
+  
+  <!-- Audit Report Container -->
+  <div class="report-container" id="auditContainer">
+    <h2>Audit & Monitoring Reports</h2>
+    <form id="auditForm">
+      <!-- Pre-populated Subproject Details -->
+      <label for="beneficiary">Subproject Name:</label>
+      <input type="text" id="beneficiary" readonly />
+      
+      <label for="address">Address:</label>
+      <input type="text" id="address" readonly />
+      
+      <label for="visitDate">Date of Site Visit:</label>
+      <input type="text" id="visitDate" placeholder="DD/MM/YYYY" />
+      
+      <label for="visitBy">Visit Conducted By:</label>
+      <input type="text" id="visitBy" placeholder="Name of Visitor" />
+      
+      <table>
+        <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th>Observations</th>
+            <th>Corrective Actions</th>
+            <th>Timeline</th>
+          </tr>
+        </thead>
+        <tbody id="observationTable">
+          <!-- Five rows will be inserted on load -->
+        </tbody>
+      </table>
+      
+      <div id="uploadStatus" style="margin-top: 10px; font-weight: bold; color: green;"></div>
+      
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="button" class="btn" onclick="saveForm()">Save Entry</button>
+      </div>
+    </form>
+    
+    <div style="text-align:center; margin-top: 30px;">
+      <button class="btn" onclick="exportToPDF()">Export All Entries as PDF</button>
+    </div>
+    
+    <!-- Container for saved audit entries -->
+    <div id="savedFormsContainer" style="margin-top: 40px;"></div>
+  </div>
+  
+  <script>
+    // Firebase configuration and initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
+      authDomain: "environmental-audit-tracker.firebaseapp.com",
+      projectId: "environmental-audit-tracker",
+      storageBucket: "environmental-audit-tracker.appspot.com",
+      messagingSenderId: "865145801207",
+      appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Retrieve current subproject data from localStorage.
+    let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
+    
+    // Populate the audit form with subproject details.
+    function populateAuditForm() {
+      if (currentProjectData) {
+        document.getElementById("beneficiary").value = currentProjectData.name || "";
+        document.getElementById("address").value = currentProjectData.address || "";
+      }
+      document.getElementById("visitDate").value = "";
+      document.getElementById("visitBy").value = "";
+      
+      // Create five empty rows for observations.
+      const tbody = document.getElementById("observationTable");
+      tbody.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i}</td>
+          <td><textarea style="width:100%;"></textarea></td>
+          <td><textarea style="width:100%;"></textarea></td>
+          <td><textarea style="width:100%;"></textarea></td>
+        `;
+        tbody.appendChild(row);
+      }
+      document.getElementById("uploadStatus").innerText = "";
+    }
+    
+    // Save the audit form data to Firestore.
+    async function saveForm() {
+      const beneficiary = document.getElementById("beneficiary").value;
+      const address = document.getElementById("address").value;
+      const visitDate = document.getElementById("visitDate").value;
+      const visitBy = document.getElementById("visitBy").value;
+      const rows = document.querySelectorAll("#observationTable tr");
+      const observations = [];
+      rows.forEach(row => {
+        const tds = row.querySelectorAll("textarea");
+        observations.push({
+          observation: tds[0].value,
+          action: tds[1].value,
+          timeline: tds[2].value
+        });
+      });
+      const timestamp = Date.now();
+      try {
+        await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("auditForms")
+          .add({
+            beneficiary,
+            address,
+            visitDate,
+            visitBy,
+            observations,
+            timestamp
+          });
+        document.getElementById("uploadStatus").innerText = "Form saved successfully!";
+        setTimeout(() => { document.getElementById("uploadStatus").innerText = ""; }, 3000);
+        document.getElementById("auditForm").reset();
+        populateAuditForm();
+        loadSavedEntries();
+      } catch (error) {
+        alert("Error saving audit form. Please try again.");
+        console.error("Audit save failed:", error);
+      }
+    }
+    
+    // Load saved audit entries and add Edit, Delete, and Export Entry buttons.
+    async function loadSavedEntries() {
+      const container = document.getElementById("savedFormsContainer");
+      container.innerHTML = "";
+      try {
+        const snapshot = await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("auditForms")
+          .orderBy("timestamp", "desc")
+          .get();
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const entryDiv = document.createElement("div");
+          entryDiv.id = "entry-" + doc.id;
+          entryDiv.style.background = "#fff";
+          entryDiv.style.padding = "20px";
+          entryDiv.style.marginBottom = "20px";
+          entryDiv.style.borderRadius = "8px";
+          entryDiv.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
+          entryDiv.style.maxWidth = "850px";
+          entryDiv.style.margin = "20px auto";
+          const createdStr = new Date(data.timestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+          let html = `<h3>Saved Entry</h3>`;
+          html += `<p><strong>Timestamp (Created):</strong> ${createdStr}</p>`;
+          html += `<p><strong>Subproject Name:</strong> ${data.beneficiary}</p>`;
+          html += `<p><strong>Address:</strong> ${data.address}</p>`;
+          html += `<p><strong>Visit Date:</strong> ${data.visitDate}</p>`;
+          html += `<p><strong>Visit Conducted By:</strong> ${data.visitBy}</p>`;
+          html += `<table>
+                     <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
+                     <thead>
+                       <tr>
+                         <th>Sr. No.</th>
+                         <th>Observations</th>
+                         <th>Corrective Actions</th>
+                         <th>Timeline</th>
+                       </tr>
+                     </thead>
+                     <tbody>`;
+          data.observations.forEach((item, index) => {
+            html += `<tr>
+                       <td>${index + 1}</td>
+                       <td>${item.observation}</td>
+                       <td>${item.action}</td>
+                       <td>${item.timeline}</td>
+                     </tr>`;
+          });
+          html += `   </tbody>
+                   </table>`;
+          // Add Delete, Edit, and Export Entry buttons.
+          html += `<button class="btn" style="background-color: #d32f2f;" onclick="deleteEntry('${doc.id}')">Delete Entry</button>`;
+          html += `<button class="btn" style="background-color: #ffa500;" onclick="inlineEditAuditEntry('${doc.id}', this.parentElement)">Edit Entry</button>`;
+          html += `<button class="btn" onclick="exportEntryPDF('${doc.id}')">Export Entry as PDF</button>`;
+          entryDiv.innerHTML = html;
+          container.appendChild(entryDiv);
+        });
+      } catch (error) {
+        console.error("Error loading audit entries:", error);
+      }
+    }
+    
+    // Delete a specific audit entry.
+    async function deleteEntry(docId) {
+      const pass = prompt("Enter password to delete this entry:");
+      if (pass !== "1111") {
+        alert("Incorrect password.");
+        return;
+      }
+      try {
+        await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("auditForms")
+          .doc(docId)
+          .delete();
+        loadSavedEntries();
+      } catch (error) {
+        alert("Error deleting entry. Please try again.");
+        console.error("Delete failed:", error);
+      }
+    }
+    
+    // Enable inline editing for an audit entry.
+    async function inlineEditAuditEntry(docId, containerDiv) {
+      const pass = prompt("Enter password to edit this entry:");
+      if (pass !== "1111") {
+        alert("Incorrect password.");
+        return;
+      }
+      const docRef = db.collection("subProjects")
+        .doc(currentProjectData.id)
+        .collection("auditForms")
+        .doc(docId);
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) {
+        alert("Audit entry not found.");
+        return;
+      }
+      const data = docSnap.data();
+      const createdStr = new Date(data.timestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+      let html = `<h3>Edit Entry</h3>`;
+      html += `<p><strong>Subproject Name:</strong> ${data.beneficiary}</p>`;
+      html += `<p><strong>Address:</strong> ${data.address}</p>`;
+      html += `<p><strong>Created At:</strong> ${createdStr}</p>`;
+      html += `<label>Date of Site Visit:</label>`;
+      html += `<input type="text" id="inlineVisitDate" value="${data.visitDate || ""}" />`;
+      html += `<label>Visit Conducted By:</label>`;
+      html += `<input type="text" id="inlineVisitBy" value="${data.visitBy || ""}" />`;
+      html += `<label>Observations:</label>`;
+      html += `<table>
+                 <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
+                 <thead>
+                   <tr>
+                     <th>Sr. No.</th>
+                     <th>Observation</th>
+                     <th>Corrective Action</th>
+                     <th>Timeline</th>
+                   </tr>
+                 </thead>
+                 <tbody id="inlineObservationTable">`;
+      data.observations.forEach((obs, i) => {
+        html += `<tr>
+                  <td>${i + 1}</td>
+                  <td><textarea>${obs.observation}</textarea></td>
+                  <td><textarea>${obs.action}</textarea></td>
+                  <td><textarea>${obs.timeline}</textarea></td>
+                </tr>`;
+      });
+      // Add empty rows if less than 5.
+      for (let i = data.observations.length; i < 5; i++) {
+        html += `<tr>
+                  <td>${i + 1}</td>
+                  <td><textarea></textarea></td>
+                  <td><textarea></textarea></td>
+                  <td><textarea></textarea></td>
+                </tr>`;
+      }
+      html += `</tbody></table>`;
+      html += `<button class="btn" onclick="inlineSaveAuditEntry('${docId}', this.parentElement)">Save</button>`;
+      html += `<button class="btn" onclick="loadSavedEntries()">Cancel</button>`;
+      containerDiv.innerHTML = html;
+    }
+    
+    // Save the updated audit entry from inline editing.
+    async function inlineSaveAuditEntry(docId, containerDiv) {
+      const visitDate = containerDiv.querySelector("#inlineVisitDate").value;
+      const visitBy = containerDiv.querySelector("#inlineVisitBy").value;
+      const rows = containerDiv.querySelectorAll("#inlineObservationTable tr");
+      let observations = [];
+      rows.forEach(row => {
+        const tds = row.querySelectorAll("textarea");
+        observations.push({
+          observation: tds[0].value,
+          action: tds[1].value,
+          timeline: tds[2].value
+        });
+      });
+      try {
+        await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("auditForms")
+          .doc(docId)
+          .update({
+            visitDate,
+            visitBy,
+            observations,
+            lastUpdated: Date.now()
+          });
+        containerDiv.innerHTML += `<p style="color: green;">Entry updated successfully!</p>`;
+        loadSavedEntries();
+      } catch (error) {
+        alert("Error updating entry. Please try again.");
+        console.error("Inline save failed:", error);
+      }
+    }
+    
+    // Export all saved audit entries as a PDF preserving the page layout.
+    async function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const container = document.getElementById("savedFormsContainer");
+      const doc = new jsPDF('p', 'pt', 'a4');
+      await doc.html(container, {
+        callback: function (doc) {
+          doc.save("audit_reports.pdf");
+        },
+        x: 10,
+        y: 10,
+        html2canvas: { scale: 0.8 }
+      });
+    }
+    
+    // Export a single audit entry as PDF preserving the page layout.
+    async function exportEntryPDF(docId) {
+      const { jsPDF } = window.jspdf;
+      const entryDiv = document.getElementById("entry-" + docId);
+      if (!entryDiv) {
+        alert("Entry not found.");
+        return;
+      }
+      const doc = new jsPDF('p', 'pt', 'a4');
+      await doc.html(entryDiv, {
+        callback: function (doc) {
+          doc.save("audit_entry_" + docId + ".pdf");
+        },
+        x: 10,
+        y: 10,
+        html2canvas: { scale: 0.8 }
+      });
+    }
+    
+    // Back button function – adjust navigation as needed.
+    function goBack() {
+      window.history.back();
+    }
+    
+    // On window load, populate the audit form and load saved audit entries.
+    window.addEventListener("load", function() {
+      if (!currentProjectData || !currentProjectData.id) {
+        alert("No subproject selected. Please select a subproject from Output 1.");
+        window.location.href = "output1.html";
+        return;
+      }
+      populateAuditForm();
+      loadSavedEntries();
+    });
+  </script>
+</body>
+</html>
