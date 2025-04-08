@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Social Screening Checklist 3C</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <style>
+    /* Base Styles */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    .back-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .back-icon:hover { color: #e0e0e0; }
+    .report-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    .report-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .report-container label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .report-container input[type="text"],
+    .report-container select,
+    .report-container textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .report-container fieldset {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+    /* Table styling */
+    .report-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .report-container table thead {
+      background-color: #f2f2f2;
+    }
+    .report-container th, .report-container td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .report-container th {
+      font-weight: 600;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+      margin: 10px 5px 0 5px;
+      display: inline-block;
+    }
+    .btn:hover { background-color: #1565c0; }
+    /* Approval button styling to match 3a/3b */
+    .btn.approval {
+      background-color: #4CAF50;
+    }
+    .btn.approval:hover {
+      background-color: #43A047;
+    }
+    /* Auto-resize for textareas */
+    textarea {
+      resize: vertical;
+      overflow: hidden;
+      min-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with back button -->
+  <header>
+    <button class="back-icon" onclick="goBack()">&#8592;</button>
+    <h1 id="projectTitle">Social Screening Checklist 3C</h1>
+  </header>
+  
+  <!-- Report Container -->
+  <div class="report-container">
+    <!-- Display the subproject name as the title -->
+    <h2 id="scProjectTitle"></h2>
+    <form id="screeningForm">
+      <fieldset>
+        <!-- Section: Involuntary Acquisition of Land -->
+        <legend><strong>Involuntary Acquisition of Land</strong></legend>
+        <table>
+          <colgroup>
+            <col style="width:50%;">
+            <col style="width:20%;">
+            <col style="width:30%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Screening Question</th>
+              <th>Response</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Question 1 -->
+            <tr>
+              <td>1. Will there be land acquisition?</td>
+              <td>
+                <select id="q1">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q1_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 2 -->
+            <tr>
+              <td>2. Is the site for land acquisition known?</td>
+              <td>
+                <select id="q2">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q2_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 3 -->
+            <tr>
+              <td>3. Is the ownership status and current usage of land to be acquired known?</td>
+              <td>
+                <select id="q3">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q3_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 4 -->
+            <tr>
+              <td>4. Will easement be utilized within an existing Right of Way (ROW)?</td>
+              <td>
+                <select id="q4">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q4_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 5 -->
+            <tr>
+              <td>5. Will there be loss of shelter and residential land due to land acquisition?</td>
+              <td>
+                <select id="q5">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q5_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 6 -->
+            <tr>
+              <td>6. Will there be loss of agricultural and other productive assets due to land acquisition?</td>
+              <td>
+                <select id="q6">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q6_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 7 -->
+            <tr>
+              <td>7. Will there be losses of crops, trees, and fixed assets due to land acquisition?</td>
+              <td>
+                <select id="q7">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q7_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 8 -->
+            <tr>
+              <td>8. Will there be loss of businesses or enterprises due to land acquisition?</td>
+              <td>
+                <select id="q8">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q8_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 9 -->
+            <tr>
+              <td>9. Will there be loss of income sources and means of livelihoods due to land acquisition?</td>
+              <td>
+                <select id="q9">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q9_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      
+      <fieldset>
+        <legend><strong>Involuntary Restrictions on Land Use / Access to Protected Areas</strong></legend>
+        <table>
+          <colgroup>
+            <col style="width:50%;">
+            <col style="width:20%;">
+            <col style="width:30%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Screening Question</th>
+              <th>Response</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Question 10 -->
+            <tr>
+              <td>10. Will people lose access to natural resources, communal facilities, and services?</td>
+              <td>
+                <select id="q10">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q10_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 11 -->
+            <tr>
+              <td>11. If land use is changed, will it have an adverse impact on social and economic activities?</td>
+              <td>
+                <select id="q11">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q11_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <!-- Question 12 -->
+            <tr>
+              <td>12. Will access to land and resources owned communally or by the state be restricted?</td>
+              <td>
+                <select id="q12">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Known">Not Known</option>
+                </select>
+              </td>
+              <td><textarea id="q12_remarks" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      
+      <!-- Information on Displaced Persons -->
+      <fieldset>
+        <legend><strong>Information on Displaced Persons</strong></legend>
+        <label for="displacedEstimate">Any estimate of the likely number of persons that will be displaced by the Project?</label>
+        <select id="displacedEstimateOption">
+          <option value=""></option>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <label for="displacedNumber">If yes, approximately how many?</label>
+        <input type="text" id="displacedNumber" placeholder="Enter number" />
+        
+        <label for="displacedVulnerable">Are any of them poor, female-heads of households, or vulnerable to poverty risks?</label>
+        <select id="displacedVulnerable">
+          <option value=""></option>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        
+        <label for="displacedMinority">Are any displaced persons from indigenous or ethnic minority groups?</label>
+        <select id="displacedMinority">
+          <option value=""></option>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </fieldset>
+      
+      <!-- Submitted By and Approval Section -->
+      <label for="scSubmittedName">Submitted By:</label>
+      <input type="text" id="scSubmittedName" placeholder="Your Name" />
+      
+      <p id="scLastUpdated" style="font-weight:bold;"></p>
+      
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="button" class="btn" id="scEditButton" style="display:none;" onclick="enableScreeningEditing()">Edit</button>
+        <button type="button" class="btn" id="scSaveButton" onclick="saveScreeningChecklist()">Save Screening Checklist</button>
+      </div>
+      
+      <hr>
+      
+      <!-- Approval Section -->
+      <label for="scApprovedBy" class="approval-field">Approved By:</label>
+      <input type="text" id="scApprovedBy" class="approval-field" placeholder="Approved By" disabled />
+      
+      <label for="scApprovalStatus" class="approval-field">Approval Status:</label>
+      <select id="scApprovalStatus" class="approval-field" disabled>
+        <option value="">Select</option>
+        <option value="Approved">Approved</option>
+        <option value="Denied">Denied (Return with Comments)</option>
+      </select>
+      
+      <label for="scApprovalComments" class="approval-field">Approval Comments:</label>
+      <textarea id="scApprovalComments" class="approval-field" rows="4" oninput="autoResize(this)" style="width:100%;" disabled></textarea>
+      
+      <p id="scApprovalTimestamp" class="approval-field" style="font-weight:bold;"></p>
+      
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="button" class="btn approval" id="scEditApprovalButton" onclick="enableApprovalEditing()">Edit Approval</button>
+        <button type="button" class="btn approval" id="scSaveApprovalButton" style="display:none;" onclick="saveApproval()">Save Approval</button>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+    // Firebase configuration and initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
+      authDomain: "environmental-audit-tracker.firebaseapp.com",
+      projectId: "environmental-audit-tracker",
+      storageBucket: "environmental-audit-tracker.appspot.com",
+      messagingSenderId: "865145801207",
+      appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Retrieve current subproject data from localStorage.
+    let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
+    
+    // Auto-resize function for textareas.
+    function autoResize(textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+    
+    // Populate the screening checklist form.
+    function populateScreeningChecklist() {
+      if (currentProjectData) {
+        document.getElementById("scProjectTitle").innerText = currentProjectData.name;
+      }
+      loadScreeningChecklist();
+      // Make screening fields non-editable initially.
+      setScreeningFormEditable(false);
+    }
+    
+    // Save the screening checklist data to Firestore.
+    async function saveScreeningChecklist() {
+      const appendix3c = {
+        responses: [
+          { question: "Will there be land acquisition?", response: document.getElementById("q1").value, remarks: document.getElementById("q1_remarks").value },
+          { question: "Is the site for land acquisition known?", response: document.getElementById("q2").value, remarks: document.getElementById("q2_remarks").value },
+          { question: "Is the ownership status and current usage of land to be acquired known?", response: document.getElementById("q3").value, remarks: document.getElementById("q3_remarks").value },
+          { question: "Will easement be utilized within an existing ROW?", response: document.getElementById("q4").value, remarks: document.getElementById("q4_remarks").value },
+          { question: "Will there be loss of shelter/residential land due to land acquisition?", response: document.getElementById("q5").value, remarks: document.getElementById("q5_remarks").value },
+          { question: "Will there be loss of agricultural and other productive assets due to land acquisition?", response: document.getElementById("q6").value, remarks: document.getElementById("q6_remarks").value },
+          { question: "Will there be losses of crops, trees, and fixed assets due to land acquisition?", response: document.getElementById("q7").value, remarks: document.getElementById("q7_remarks").value },
+          { question: "Will there be loss of businesses or enterprises due to land acquisition?", response: document.getElementById("q8").value, remarks: document.getElementById("q8_remarks").value },
+          { question: "Will there be loss of income sources and means of livelihoods due to land acquisition?", response: document.getElementById("q9").value, remarks: document.getElementById("q9_remarks").value },
+          { question: "Will people lose access to natural resources, communal facilities, and services?", response: document.getElementById("q10").value, remarks: document.getElementById("q10_remarks").value },
+          { question: "If land use is changed, will it have an adverse impact on social and economic activities?", response: document.getElementById("q11").value, remarks: document.getElementById("q11_remarks").value },
+          { question: "Will access to land and resources owned communally or by the state be restricted?", response: document.getElementById("q12").value, remarks: document.getElementById("q12_remarks").value },
+        ]
+      };
+      
+      // Displaced Persons Information
+      const displacedInfo = {
+        estimateOption: document.getElementById("displacedEstimateOption").value,
+        number: document.getElementById("displacedNumber").value,
+        vulnerable: document.getElementById("displacedVulnerable").value,
+        minority: document.getElementById("displacedMinority").value
+      };
+      
+      const dataToSave = {
+        timestamp: Date.now(),
+        subProjectName: currentProjectData ? currentProjectData.name : "",
+        appendix3c: appendix3c,
+        displacedInfo: displacedInfo,
+        submittedBy: {
+          name: document.getElementById("scSubmittedName").value
+        },
+        approval: {
+          approvedBy: document.getElementById("scApprovedBy").value,
+          approvalStatus: document.getElementById("scApprovalStatus").value,
+          approvalComments: document.getElementById("scApprovalComments").value,
+          approvalTimestamp: document.getElementById("scApprovalTimestamp").dataset.timestamp || null
+        },
+        lastUpdated: Date.now()
+      };
+      
+      try {
+        if (window.screeningDocId) {
+          await db.collection("subProjects")
+            .doc(currentProjectData.id)
+            .collection("screeningChecklist")
+            .doc(window.screeningDocId)
+            .update(dataToSave);
+        } else {
+          const docRef = await db.collection("subProjects")
+            .doc(currentProjectData.id)
+            .collection("screeningChecklist")
+            .add(dataToSave);
+          window.screeningDocId = docRef.id;
+        }
+        alert("Screening Checklist saved successfully!");
+        loadScreeningChecklist();
+      } catch (error) {
+        console.error("Screening Checklist save failed:", error);
+        alert("Error saving screening checklist. Please try again.");
+      }
+    }
+    
+    // Load screening checklist data from Firestore.
+    async function loadScreeningChecklist() {
+      const snapshot = await db.collection("subProjects")
+        .doc(currentProjectData.id)
+        .collection("screeningChecklist")
+        .get();
+      if (!snapshot.empty) {
+        snapshot.forEach(doc => {
+          window.screeningDocId = doc.id;
+          const data = doc.data();
+          document.getElementById("scSubmittedName").value = data.submittedBy ? data.submittedBy.name : "";
+          if(data.lastUpdated){
+            document.getElementById("scLastUpdated").innerText = "Last Updated: " + new Date(data.lastUpdated).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+          } else {
+            document.getElementById("scLastUpdated").innerText = "";
+          }
+          // Populate each screening question response for appendix3c
+          if(data.appendix3c && data.appendix3c.responses) {
+            const responses = data.appendix3c.responses;
+            if(responses[0]){
+              document.getElementById("q1").value = responses[0].response || "";
+              document.getElementById("q1_remarks").value = responses[0].remarks || "";
+            }
+            if(responses[1]){
+              document.getElementById("q2").value = responses[1].response || "";
+              document.getElementById("q2_remarks").value = responses[1].remarks || "";
+            }
+            if(responses[2]){
+              document.getElementById("q3").value = responses[2].response || "";
+              document.getElementById("q3_remarks").value = responses[2].remarks || "";
+            }
+            if(responses[3]){
+              document.getElementById("q4").value = responses[3].response || "";
+              document.getElementById("q4_remarks").value = responses[3].remarks || "";
+            }
+            if(responses[4]){
+              document.getElementById("q5").value = responses[4].response || "";
+              document.getElementById("q5_remarks").value = responses[4].remarks || "";
+            }
+            if(responses[5]){
+              document.getElementById("q6").value = responses[5].response || "";
+              document.getElementById("q6_remarks").value = responses[5].remarks || "";
+            }
+            if(responses[6]){
+              document.getElementById("q7").value = responses[6].response || "";
+              document.getElementById("q7_remarks").value = responses[6].remarks || "";
+            }
+            if(responses[7]){
+              document.getElementById("q8").value = responses[7].response || "";
+              document.getElementById("q8_remarks").value = responses[7].remarks || "";
+            }
+            if(responses[8]){
+              document.getElementById("q9").value = responses[8].response || "";
+              document.getElementById("q9_remarks").value = responses[8].remarks || "";
+            }
+            if(responses[9]){
+              document.getElementById("q10").value = responses[9].response || "";
+              document.getElementById("q10_remarks").value = responses[9].remarks || "";
+            }
+            if(responses[10]){
+              document.getElementById("q11").value = responses[10].response || "";
+              document.getElementById("q11_remarks").value = responses[10].remarks || "";
+            }
+            if(responses[11]){
+              document.getElementById("q12").value = responses[11].response || "";
+              document.getElementById("q12_remarks").value = responses[11].remarks || "";
+            }
+          }
+          // Populate displaced persons info
+          if(data.displacedInfo) {
+            document.getElementById("displacedEstimateOption").value = data.displacedInfo.estimateOption || "";
+            document.getElementById("displacedNumber").value = data.displacedInfo.number || "";
+            document.getElementById("displacedVulnerable").value = data.displacedInfo.vulnerable || "";
+            document.getElementById("displacedMinority").value = data.displacedInfo.minority || "";
+          }
+          // Load Approval details if available.
+          if(data.approval) {
+            document.getElementById("scApprovedBy").value = data.approval.approvedBy || "";
+            document.getElementById("scApprovalStatus").value = data.approval.approvalStatus || "";
+            document.getElementById("scApprovalComments").value = data.approval.approvalComments || "";
+            document.getElementById("scApprovalTimestamp").innerText = "Approval Last Updated: " + new Date(data.approval.approvalTimestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+            document.getElementById("scApprovalTimestamp").dataset.timestamp = data.approval.approvalTimestamp;
+          } else {
+            document.getElementById("scApprovedBy").value = "";
+            document.getElementById("scApprovalStatus").value = "";
+            document.getElementById("scApprovalComments").value = "";
+            document.getElementById("scApprovalTimestamp").innerText = "";
+          }
+        });
+      } else {
+        document.getElementById("scSubmittedName").value = "";
+        document.getElementById("scLastUpdated").innerText = "";
+      }
+      setScreeningFormEditable(false);
+    }
+    
+    // Toggle form editability for screening checklist (excluding approval fields).
+    function setScreeningFormEditable(isEditable) {
+      const elements = document.querySelectorAll("#screeningForm input:not(.approval-field), #screeningForm select:not(.approval-field), #screeningForm textarea:not(.approval-field)");
+      elements.forEach(el => {
+        el.disabled = !isEditable;
+      });
+      document.getElementById("scSaveButton").style.display = isEditable ? "inline-block" : "none";
+      document.getElementById("scEditButton").style.display = isEditable ? "none" : "inline-block";
+    }
+    
+    function enableScreeningEditing() {
+      setScreeningFormEditable(true);
+    }
+    
+    // Enable editing of the approval section.
+    function enableApprovalEditing() {
+      const pass = prompt("Enter password to enable editing of approval details:");
+      if (pass === "1111") {
+        document.getElementById("scApprovedBy").disabled = false;
+        document.getElementById("scApprovalStatus").disabled = false;
+        document.getElementById("scApprovalComments").disabled = false;
+        document.getElementById("scEditApprovalButton").style.display = "none";
+        document.getElementById("scSaveApprovalButton").style.display = "inline-block";
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+    
+    // Save the approval details to Firestore.
+    async function saveApproval() {
+      const approval = {
+        approvedBy: document.getElementById("scApprovedBy").value,
+        approvalStatus: document.getElementById("scApprovalStatus").value,
+        approvalComments: document.getElementById("scApprovalComments").value,
+        approvalTimestamp: Date.now()
+      };
+      try {
+        await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("screeningChecklist")
+          .doc(window.screeningDocId)
+          .update({ approval: approval });
+        alert("Approval details updated successfully!");
+        document.getElementById("scApprovalTimestamp").innerText = "Approval Last Updated: " + new Date(approval.approvalTimestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        document.getElementById("scApprovalTimestamp").dataset.timestamp = approval.approvalTimestamp;
+        document.getElementById("scApprovedBy").disabled = true;
+        document.getElementById("scApprovalStatus").disabled = true;
+        document.getElementById("scApprovalComments").disabled = true;
+        document.getElementById("scEditApprovalButton").style.display = "inline-block";
+        document.getElementById("scSaveApprovalButton").style.display = "none";
+      } catch (error) {
+        alert("Error updating approval details. Please try again.");
+        console.error("Approval update failed:", error);
+      }
+    }
+    
+    // Back button function.
+    function goBack() {
+      window.history.back();
+    }
+    
+    window.addEventListener("load", function() {
+      if (!currentProjectData || !currentProjectData.id) {
+        alert("No subproject selected. Please select a subproject from Output 1.");
+        window.location.href = "output1.html";
+        return;
+      }
+      populateScreeningChecklist();
+    });
+  </script>
+</body>
+</html>
