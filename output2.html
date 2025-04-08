@@ -29,7 +29,7 @@
       font-size: 28px;
       letter-spacing: 1px;
     }
-    /* Back button in header to go to output selection */
+    /* Back button in header to go to output selection section */
     .back-icon {
       position: absolute;
       left: 20px;
@@ -428,9 +428,9 @@
       document.getElementById("categorySection").classList.remove("active");
       document.getElementById("formSection").classList.add("active");
       
-      // Set eligible cost placeholder depending on category
+      // Set eligible cost placeholder and later label depending on category.
       if (currentCategory === "Matching Grant") {
-        document.getElementById("eligibleCost").placeholder = "Project Cost";
+        document.getElementById("eligibleCost").placeholder = "Subproject Cost";
       } else {
         document.getElementById("eligibleCost").placeholder = "Financing Facility";
       }
@@ -504,17 +504,31 @@
         coordinates: document.getElementById("coordinates").value,
         outputComponent: document.getElementById("outputComponent").value,
         eligibleCost: document.getElementById("eligibleCost").value,
-        // Grant field removed
         envCategory: document.getElementById("envCategory").value,
         resettlementCategory: document.getElementById("resettlementCategory").value,
         indigenousCategory: document.getElementById("indigenousCategory").value,
         category: currentCategory,
         timestamp: Date.now()
       };
-      if (!data.name.trim()) {
-        alert("Please enter a subproject name.");
+      
+      // Check that all fields are filled in.
+      if (
+        !data.name.trim() ||
+        !data.entityType.trim() ||
+        !data.district.trim() ||
+        !data.division.trim() ||
+        !data.address.trim() ||
+        !data.coordinates.trim() ||
+        !data.outputComponent.trim() ||
+        !data.eligibleCost.trim() ||
+        !data.envCategory.trim() ||
+        !data.resettlementCategory.trim() ||
+        !data.indigenousCategory.trim()
+      ) {
+        alert("Please fill in all fields.");
         return;
       }
+      
       try {
         if (editMode && editId) {
           await db.collection("subProjects").doc(editId).update(data);
@@ -626,17 +640,16 @@
       detailsHtml += `<p><strong>Address:</strong> ${data.address || ""}</p>`;
       detailsHtml += `<p><strong>GPS Coordinates:</strong> ${data.coordinates || ""}</p>`;
       detailsHtml += `<p><strong>Subproject Components:</strong> ${data.outputComponent || ""}</p>`;
-      // Change label dynamically based on category
+      // Change cost label dynamically based on category.
       if(data.category === "Matching Grant"){
-        detailsHtml += `<p><strong>Project Cost:</strong> ${data.eligibleCost || ""}</p>`;
+        detailsHtml += `<p><strong>Subproject Cost:</strong> ${data.eligibleCost || ""}</p>`;
       } else {
         detailsHtml += `<p><strong>Financing Facility:</strong> ${data.eligibleCost || ""}</p>`;
       }
       detailsHtml += `<p><strong>Environmental Categorisation:</strong> ${data.envCategory || ""}</p>`;
       detailsHtml += `<p><strong>Involuntary Resettlement Categorisation:</strong> ${data.resettlementCategory || ""}</p>`;
       detailsHtml += `<p><strong>Indigenous People Categorisation:</strong> ${data.indigenousCategory || ""}</p>`;
-      // New element for project data from audit monitoring (or other sources)
-      detailsHtml += `<p><strong>Project Data:</strong> ${data.projectData || "Not available"}</p>`;
+      // Removed the "Project Data" element.
       
       document.getElementById("detailInfo").innerHTML = detailsHtml;
       
