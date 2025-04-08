@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Output 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <style>
+    /* Base Styles */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    /* Back button in header to go to output selection */
+    .back-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .back-icon:hover { color: #e0e0e0; }
+    /* Section styles – widened for better spacing */
+    .section {
+      display: none;
+      max-width: 1100px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 40px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    /* Removed duplicate title added via pseudo-element */
+    .sub-heading {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    /* Category container – ensures three boxes appear side by side */
+    .category-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .category-box {
+      flex: 1;
+      min-width: 300px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      margin: 6px 0;
+      display: inline-block;
+      width: 80%;
+    }
+    .btn:hover { background-color: #1565c0; }
+    .edit-btn {
+      padding: 5px 10px;
+      background-color: #ffa500;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 6px 0;
+      display: inline-block;
+      width: 80%;
+    }
+    .edit-btn:hover { background-color: #e59400; }
+    /* Project Entry */
+    .project-entry {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f9f9f9;
+      border: 1px solid #1976d2;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+    .project-name {
+      flex: 1;
+      font-weight: bold;
+      color: #1976d2;
+      text-align: center;
+      cursor: pointer;
+    }
+    .project-name.edit-mode {
+      color: red;
+    }
+    /* Popup Form Styling */
+    .form-container {
+      text-align: left;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+    .form-container input,
+    .form-container select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .form-back {
+      display: inline-block;
+      margin-bottom: 20px;
+      font-size: 26px;
+      cursor: pointer;
+      color: #1976d2;
+    }
+    /* Detail Section */
+    .detail-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: #1976d2;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .detail-back:hover { color: #0d47a1; }
+    #detailTitle { text-align: center; }
+    #detailInfo {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .detail-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .detail-buttons .btn {
+      flex: 0 1 200px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with back button to output selection -->
+  <header>
+    <button class="back-icon" onclick="goBackToOutputSelection()">&#8592;</button>
+    <h1>Output 1</h1>
+  </header>
+  
+  <!-- Category Section -->
+  <div id="categorySection" class="section active">
+    <div class="page-title">Project Components</div>
+    <div class="category-container">
+      <!-- Hi-Tech Nursery Category -->
+      <div class="category-box">
+        <div class="sub-heading">Hi-Tech Nursery</div>
+        <button class="btn" onclick="openForm('nursery')">Create New</button>
+        <button id="toggleNursery" class="edit-btn" onclick="toggleEditMode('nursery')">Edit</button>
+        <div id="nurseryList"></div>
+      </div>
+      <!-- Tissue Culture Lab Category -->
+      <div class="category-box">
+        <div class="sub-heading">Tissue Culture Lab</div>
+        <button class="btn" onclick="openForm('tissue')">Create New</button>
+        <button id="toggleTissue" class="edit-btn" onclick="toggleEditMode('tissue')">Edit</button>
+        <div id="tissueList"></div>
+      </div>
+      <!-- New & Innovative Technologies Category -->
+      <div class="category-box">
+        <div class="sub-heading">New & Innovative Technologies</div>
+        <button class="btn" onclick="openForm('innovation')">Create New</button>
+        <button id="toggleInnovation" class="edit-btn" onclick="toggleEditMode('innovation')">Edit</button>
+        <div id="innovationList"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Form Section -->
+  <div id="formSection" class="section">
+    <div style="text-align: left;">
+      <span class="form-back" onclick="cancelForm()">&#8592;</span>
+    </div>
+    <h2 id="formTitle" style="text-align:center;">Create Subproject</h2>
+    <div class="form-container">
+      <input type="text" id="subName" placeholder="Subproject Name">
+      
+      <!-- Entity Type Dropdown -->
+      <select id="entityType">
+        <option value="">Select Entity Type</option>
+        <option value="FPO">FPO</option>
+        <option value="VCO">VCO</option>
+      </select>
+      
+      <!-- District Dropdown with all 36 districts -->
+      <select id="district">
+        <option value="">Select District</option>
+        <option value="Ahmednagar">Ahmednagar</option>
+        <option value="Akola">Akola</option>
+        <option value="Amravati">Amravati</option>
+        <option value="Aurangabad">Aurangabad (Chhatrapati Sambhajinagar)</option>
+        <option value="Beed">Beed</option>
+        <option value="Bhandara">Bhandara</option>
+        <option value="Buldhana">Buldhana</option>
+        <option value="Chandrapur">Chandrapur</option>
+        <option value="Dhule">Dhule</option>
+        <option value="Gadchiroli">Gadchiroli</option>
+        <option value="Gondia">Gondia</option>
+        <option value="Hingoli">Hingoli</option>
+        <option value="Jalgaon">Jalgaon</option>
+        <option value="Jalna">Jalna</option>
+        <option value="Kolhapur">Kolhapur</option>
+        <option value="Latur">Latur</option>
+        <option value="Mumbai City">Mumbai City</option>
+        <option value="Mumbai Suburban">Mumbai Suburban</option>
+        <option value="Nagpur">Nagpur</option>
+        <option value="Nanded">Nanded</option>
+        <option value="Nandurbar">Nandurbar</option>
+        <option value="Nashik">Nashik</option>
+        <option value="Osmanabad">Osmanabad (Dharashiv)</option>
+        <option value="Palghar">Palghar</option>
+        <option value="Parbhani">Parbhani</option>
+        <option value="Pune">Pune</option>
+        <option value="Raigad">Raigad</option>
+        <option value="Ratnagiri">Ratnagiri</option>
+        <option value="Sangli">Sangli</option>
+        <option value="Satara">Satara</option>
+        <option value="Sindhudurg">Sindhudurg</option>
+        <option value="Solapur">Solapur</option>
+        <option value="Thane">Thane</option>
+        <option value="Wardha">Wardha</option>
+        <option value="Washim">Washim</option>
+        <option value="Yavatmal">Yavatmal</option>
+      </select>
+      
+      <!-- Division Dropdown -->
+      <select id="division">
+        <option value="">Select Division</option>
+        <option value="Amravati">Amravati</option>
+        <option value="Chh. Sambhaji Nagar">Chh. Sambhaji Nagar</option>
+        <option value="Kolhapur">Kolhapur</option>
+        <option value="Latur">Latur</option>
+        <option value="Nagpur">Nagpur</option>
+        <option value="Nashik">Nashik</option>
+        <option value="Pune">Pune</option>
+        <option value="Ratnagiri">Ratnagiri</option>
+      </select>
+      
+      <input type="text" id="address" placeholder="Address">
+      <input type="text" id="coordinates" placeholder="GPS Coordinates">
+      <input type="text" id="outputComponent" placeholder="Subproject Components">
+      <input type="text" id="eligibleCost" placeholder="Project Cost">
+      
+      <!-- Environmental Categorisation Dropdown (only options B and C) -->
+      <select id="envCategory">
+        <option value="">Select Environmental Categorisation</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+      
+      <!-- Involuntary Resettlement Categorisation Dropdown (only options B and C) -->
+      <select id="resettlementCategory">
+        <option value="">Select Involuntary Resettlement Categorisation</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+      
+      <!-- Indigenous People Categorisation Dropdown (only options B and C) -->
+      <select id="indigenousCategory">
+        <option value="">Select Indigenous People Categorisation</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+      
+      <div class="form-actions">
+        <button class="btn" onclick="saveSubproject()">Save</button>
+        <button id="deleteBtn" class="btn" style="display:none; background-color: #d32f2f;" onclick="deleteProject()">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Detail Section -->
+  <div id="detailSection" class="section">
+    <button class="detail-back" onclick="backToCategory()">&#8592;</button>
+    <h2 id="detailTitle">Subproject Details</h2>
+    <div id="detailInfo"></div>
+    <div class="detail-buttons">
+      <button class="btn" id="env3aBtn">Environment Screening Checklist 3A</button>
+      <button class="btn" id="social3cBtn">Social Screening Checklist 3C</button>
+      <button class="btn" id="social3dBtn">Social Screening Checklist 3D</button>
+      <button class="btn" id="auditMonitoringBtn">Audit & Monitoring Reports</button>
+    </div>
+  </div>
+  
+  <script>
+    // Firebase configuration and initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
+      authDomain: "environmental-audit-tracker.firebaseapp.com",
+      projectId: "environmental-audit-tracker",
+      storageBucket: "environmental-audit-tracker.appspot.com",
+      messagingSenderId: "865145801207",
+      appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Global state variables
+    let currentCategory = '';
+    let editMode = false; // true when editing a project via form
+    let editId = null;
+    let currentProjectData = null;
+    // For output1, we support three categories (using lowercase keys)
+    const editEnabled = {
+      nursery: false,
+      tissue: false,
+      innovation: false
+    };
+    
+    // Toggle global edit mode for a category
+    function toggleEditMode(category) {
+      // Build the correct button ID with proper capitalisation.
+      const buttonId = "toggle" + category.charAt(0).toUpperCase() + category.slice(1);
+      if (editEnabled[category]) {
+        editEnabled[category] = false;
+        document.getElementById(buttonId).innerText = "Edit";
+      } else {
+        const pass = prompt("Enter password to enable editing for all projects in " + category + ":");
+        if (pass === "1111") {
+          editEnabled[category] = true;
+          document.getElementById(buttonId).innerText = "Exit Edit Mode";
+        } else {
+          alert("Incorrect password.");
+        }
+      }
+      loadSubprojects();
+    }
+    
+    // Open form for creating or editing a project
+    function openForm(category, existingData = null, docId = null) {
+      currentCategory = category;
+      document.getElementById("categorySection").classList.remove("active");
+      document.getElementById("formSection").classList.add("active");
+      if (existingData && docId) {
+        document.getElementById("formTitle").innerText = "Edit Subproject";
+        document.getElementById("subName").value = existingData.name;
+        document.getElementById("entityType").value = existingData.entityType;
+        document.getElementById("district").value = existingData.district || "";
+        document.getElementById("division").value = existingData.division || "";
+        document.getElementById("address").value = existingData.address;
+        document.getElementById("coordinates").value = existingData.coordinates;
+        document.getElementById("outputComponent").value = existingData.outputComponent;
+        document.getElementById("eligibleCost").value = existingData.eligibleCost;
+        if(existingData.envCategory) {
+          document.getElementById("envCategory").value = existingData.envCategory;
+        }
+        if(existingData.resettlementCategory) {
+          document.getElementById("resettlementCategory").value = existingData.resettlementCategory;
+        }
+        if(existingData.indigenousCategory) {
+          document.getElementById("indigenousCategory").value = existingData.indigenousCategory;
+        }
+        editMode = true;
+        editId = docId;
+        currentProjectData = existingData;
+        document.getElementById("deleteBtn").style.display = "block";
+      } else {
+        document.getElementById("formTitle").innerText = "Create Subproject";
+        clearForm();
+        editMode = false;
+        editId = null;
+        currentProjectData = null;
+      }
+    }
+    
+    // Clear form fields
+    function clearForm() {
+      document.getElementById("subName").value = "";
+      document.getElementById("entityType").value = "";
+      document.getElementById("district").value = "";
+      document.getElementById("division").value = "";
+      document.getElementById("address").value = "";
+      document.getElementById("coordinates").value = "";
+      document.getElementById("outputComponent").value = "";
+      document.getElementById("eligibleCost").value = "";
+      document.getElementById("envCategory").value = "";
+      document.getElementById("resettlementCategory").value = "";
+      document.getElementById("indigenousCategory").value = "";
+    }
+    
+    // Cancel the form and return to category view
+    function cancelForm() {
+      document.getElementById("formSection").classList.remove("active");
+      document.getElementById("deleteBtn").style.display = "none";
+      editMode = false;
+      editId = null;
+      currentProjectData = null;
+      loadSubprojects();
+      document.getElementById("categorySection").classList.add("active");
+    }
+    
+    // Save or update a project in Firestore
+    async function saveSubproject() {
+      const data = {
+        name: document.getElementById("subName").value,
+        entityType: document.getElementById("entityType").value,
+        district: document.getElementById("district").value,
+        division: document.getElementById("division").value,
+        address: document.getElementById("address").value,
+        coordinates: document.getElementById("coordinates").value,
+        outputComponent: document.getElementById("outputComponent").value,
+        eligibleCost: document.getElementById("eligibleCost").value,
+        envCategory: document.getElementById("envCategory").value,
+        resettlementCategory: document.getElementById("resettlementCategory").value,
+        indigenousCategory: document.getElementById("indigenousCategory").value,
+        category: currentCategory,
+        timestamp: Date.now()
+      };
+      if (!data.name.trim()) {
+        alert("Please enter a subproject name.");
+        return;
+      }
+      try {
+        if (editMode && editId) {
+          await db.collection("subProjects").doc(editId).update(data);
+        } else {
+          await db.collection("subProjects").add(data);
+        }
+        cancelForm();
+      } catch (error) {
+        alert("Error saving data. Please try again.");
+        console.error("Save failed:", error);
+      }
+    }
+    
+    // Delete the current project (from edit form)
+    async function deleteProject() {
+      const pass = prompt("Enter password to delete the project:");
+      if (pass === "1111") {
+        try {
+          await db.collection("subProjects").doc(editId).delete();
+          cancelForm();
+        } catch (error) {
+          alert("Error deleting project. Please try again.");
+          console.error("Delete failed:", error);
+        }
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+    
+    // Render a project entry for a given category
+    function renderSubprojectEntry(id, data) {
+      // Compare the stored homepage division with the project's division.
+      const selectedDivision = (localStorage.getItem("selectedDivision") || "all").toLowerCase();
+      const projectDiv = (data.division || "").toLowerCase();
+      if (selectedDivision !== "all" && projectDiv !== selectedDivision) return;
+      
+      // Standardise the category to lowercase.
+      const cat = (data.category || "").toLowerCase();
+      let containerId = "";
+      if (cat === "nursery") containerId = "nurseryList";
+      else if (cat === "tissue") containerId = "tissueList";
+      else if (cat === "innovation") containerId = "innovationList";
+      else return;
+      
+      const container = document.getElementById(containerId);
+      const row = document.createElement("div");
+      row.className = "project-entry";
+      
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "project-name";
+      
+      if (editEnabled[cat]) {
+        nameDiv.classList.add("edit-mode");
+        nameDiv.addEventListener("click", function() {
+          openForm(data.category, data, id);
+          document.getElementById("deleteBtn").style.display = "block";
+        });
+      } else {
+        nameDiv.addEventListener("click", function() {
+          openProjectDetail(id, data);
+        });
+      }
+      nameDiv.innerText = data.name;
+      
+      row.appendChild(nameDiv);
+      container.appendChild(row);
+    }
+    
+    // Load projects from Firestore, filtering by division and ordering by timestamp
+    async function loadSubprojects() {
+      document.getElementById("nurseryList").innerHTML = "";
+      document.getElementById("tissueList").innerHTML = "";
+      document.getElementById("innovationList").innerHTML = "";
+      
+      const snapshot = await db.collection("subProjects").orderBy("timestamp", "desc").get();
+      snapshot.forEach(doc => {
+        renderSubprojectEntry(doc.id, doc.data());
+      });
+    }
+    
+    // Open detail view for a project (normal mode)
+    function openProjectDetail(id, data) {
+      // Set currentProjectData and add the document ID.
+      currentProjectData = data;
+      currentProjectData.id = id;
+      // Save the current subproject's data to localStorage for use in screening and audit forms.
+      localStorage.setItem("currentProjectData", JSON.stringify(currentProjectData));
+      
+      document.getElementById("detailTitle").innerText = data.name;
+      let detailsHtml = `<p><strong>Entity Type:</strong> ${data.entityType || ""}</p>`;
+      detailsHtml += `<p><strong>District:</strong> ${data.district || ""}</p>`;
+      detailsHtml += `<p><strong>Division:</strong> ${data.division || ""}</p>`;
+      detailsHtml += `<p><strong>Address:</strong> ${data.address || ""}</p>`;
+      detailsHtml += `<p><strong>GPS Coordinates:</strong> ${data.coordinates || ""}</p>`;
+      detailsHtml += `<p><strong>Subproject Components:</strong> ${data.outputComponent || ""}</p>`;
+      detailsHtml += `<p><strong>Project Cost:</strong> ${data.eligibleCost || ""}</p>`;
+      detailsHtml += `<p><strong>Environmental Categorisation:</strong> ${data.envCategory || ""}</p>`;
+      detailsHtml += `<p><strong>Involuntary Resettlement Categorisation:</strong> ${data.resettlementCategory || ""}</p>`;
+      detailsHtml += `<p><strong>Indigenous People Categorisation:</strong> ${data.indigenousCategory || ""}</p>`;
+      document.getElementById("detailInfo").innerHTML = detailsHtml;
+      document.getElementById("categorySection").classList.remove("active");
+      document.getElementById("formSection").classList.remove("active");
+      document.getElementById("detailSection").classList.add("active");
+    }
+    
+    // Detail navigation buttons (Environment Screening Checklist 3B button removed)
+    document.getElementById("env3aBtn").addEventListener("click", function() {
+      window.location.href = "environment3a.html";
+    });
+    document.getElementById("social3cBtn").addEventListener("click", function() {
+      window.location.href = "social3c.html";
+    });
+    document.getElementById("social3dBtn").addEventListener("click", function() {
+      window.location.href = "social3d.html";
+    });
+    document.getElementById("auditMonitoringBtn").addEventListener("click", function() {
+      window.location.href = "auditMonitoring.html";
+    });
+    
+    // Back from detail view to category view
+    function backToCategory() {
+      document.getElementById("detailSection").classList.remove("active");
+      document.getElementById("categorySection").classList.add("active");
+    }
+    
+    // Back button in header to go to output selection section
+    function goBackToOutputSelection() {
+      window.location.href = "index.html#outputSection";
+    }
+    
+    window.addEventListener("load", loadSubprojects);
+  </script>
+</body>
+</html>
