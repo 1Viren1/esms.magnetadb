@@ -291,7 +291,8 @@
       <input type="text" id="address" placeholder="Address">
       <input type="text" id="coordinates" placeholder="GPS Coordinates">
       <input type="text" id="outputComponent" placeholder="Subproject Components">
-      <input type="text" id="eligibleCost" placeholder="Project Cost">
+      <!-- Updated placeholder to "Subproject Cost" -->
+      <input type="text" id="eligibleCost" placeholder="Subproject Cost">
       
       <!-- Environmental Categorisation Dropdown -->
       <select id="envCategory">
@@ -439,7 +440,7 @@
       document.getElementById("categorySection").classList.add("active");
     }
     
-    // Save or update a project in Firestore
+    // Save or update a project in Firestore (validation applies for both new and edited subprojects)
     async function saveSubproject() {
       const data = {
         name: document.getElementById("subName").value,
@@ -456,8 +457,21 @@
         category: currentCategory,
         timestamp: Date.now()
       };
-      if (!data.name.trim()) {
-        alert("Please enter a subproject name.");
+      // Check that all fields are filled in, whether creating or editing.
+      if (
+        !data.name.trim() ||
+        !data.entityType.trim() ||
+        !data.district.trim() ||
+        !data.division.trim() ||
+        !data.address.trim() ||
+        !data.coordinates.trim() ||
+        !data.outputComponent.trim() ||
+        !data.eligibleCost.trim() ||
+        !data.envCategory.trim() ||
+        !data.resettlementCategory.trim() ||
+        !data.indigenousCategory.trim()
+      ) {
+        alert("Please fill in all fields.");
         return;
       }
       try {
@@ -548,7 +562,8 @@
       detailsHtml += `<p><strong>Address:</strong> ${data.address || ""}</p>`;
       detailsHtml += `<p><strong>GPS Coordinates:</strong> ${data.coordinates || ""}</p>`;
       detailsHtml += `<p><strong>Subproject Components:</strong> ${data.outputComponent || ""}</p>`;
-      detailsHtml += `<p><strong>Project Cost:</strong> ${data.eligibleCost || ""}</p>`;
+      // Updated label here to "Subproject Cost"
+      detailsHtml += `<p><strong>Subproject Cost:</strong> ${data.eligibleCost || ""}</p>`;
       detailsHtml += `<p><strong>Environmental Categorisation:</strong> ${data.envCategory || ""}</p>`;
       detailsHtml += `<p><strong>Involuntary Resettlement Categorisation:</strong> ${data.resettlementCategory || ""}</p>`;
       detailsHtml += `<p><strong>Indigenous People Categorisation:</strong> ${data.indigenousCategory || ""}</p>`;
