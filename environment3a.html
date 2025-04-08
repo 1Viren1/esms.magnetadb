@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Environment Screening Checklist 3A</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <style>
+    /* Base Styles */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+    .back-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .back-icon:hover { color: #e0e0e0; }
+    .report-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    .report-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .report-container label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .report-container input[type="text"],
+    .report-container select,
+    .report-container textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .report-container fieldset {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+    /* Tables with column groups for adjusted widths */
+    .report-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .report-container table thead {
+      background-color: #f2f2f2;
+    }
+    .report-container th, .report-container td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .report-container th {
+      font-weight: 600;
+    }
+    .table-title {
+      background-color: #ddd;
+      font-weight: bold;
+      text-align: center;
+      padding: 5px;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+      margin: 10px 5px 0 5px;
+      display: inline-block;
+    }
+    .btn:hover { background-color: #1565c0; }
+    /* Green buttons for approval section */
+    .btn.approval {
+      background-color: #4CAF50;
+    }
+    .btn.approval:hover {
+      background-color: #43A047;
+    }
+    /* Auto-resize for textareas */
+    textarea {
+      resize: vertical;
+      overflow: hidden;
+      min-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with back button -->
+  <header>
+    <button class="back-icon" onclick="goBack()">&#8592;</button>
+    <h1 id="projectTitle">Environment Screening Checklist 3A</h1>
+  </header>
+  
+  <!-- Report Container -->
+  <div class="report-container">
+    <!-- Display the subproject name as the title -->
+    <h2 id="scProjectTitle"></h2>
+    <form id="screeningForm">
+      <fieldset>
+        <!-- Screening Tables -->
+        <!-- Land Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Land</td>
+            </tr>
+            <tr>
+              <th>Environmental Aspect</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Construction – Will the construction activities cause disturbance to the natural habitat (e.g. felling of trees, closing of ponds/lakes)?</td>
+              <td>
+                <select id="land1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Soil Erosion – Will the activity cause direct or subsequent soil erosion?</td>
+              <td>
+                <select id="land2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Land Degradation – Will the project cause degradation (e.g. chemical use, overuse of water, removal of topsoil)?</td>
+              <td>
+                <select id="land3_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land3_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land3_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Solid Waste – Will the project generate substantial non-biodegradable waste?</td>
+              <td>
+                <select id="land4_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land4_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land4_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Toxic Wastes – Will the project generate any toxic wastes?</td>
+              <td>
+                <select id="land5_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land5_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land5_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Presence of Eco-sensitive Zone – Is the project in proximity to protected/sensitive areas?</td>
+              <td>
+                <select id="land6_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="land6_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="land6_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Water Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Water</td>
+            </tr>
+            <tr>
+              <th>Environmental Aspect</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Water Usage – Will the project cause water scarcity in adjacent areas?</td>
+              <td>
+                <select id="water1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="water1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="water1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Surface Water Quality – Will the project generate waste that deteriorates surface water quality?</td>
+              <td>
+                <select id="water2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="water2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="water2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Ground Water Quality – Will the project cause seepage of toxic substances into the ground?</td>
+              <td>
+                <select id="water3_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="water3_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="water3_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Biodiversity Loss – Will the project affect water sources that support biodiversity?</td>
+              <td>
+                <select id="water4_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="water4_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="water4_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Air Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Air</td>
+            </tr>
+            <tr>
+              <th>Environmental Aspect</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Emission – Will the project involve harmful emissions (e.g. GHGs, NOX, particulate matter)?</td>
+              <td>
+                <select id="air1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="air1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="air1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Usage of Chemicals – Will the project use chemicals (e.g. refrigerants) that contribute to global warming?</td>
+              <td>
+                <select id="air2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="air2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="air2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Flora and Fauna Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Flora and Fauna</td>
+            </tr>
+            <tr>
+              <th>Environmental Aspect</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Loss of Vegetation – Will the project lead to felling of trees or land clearing?</td>
+              <td>
+                <select id="flora1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Species at Risk – Are any of the affected species endangered, vulnerable, or threatened?</td>
+              <td>
+                <select id="flora2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Presence of Endangered Species – Are there endangered or threatened species within a 10km radius?</td>
+              <td>
+                <select id="flora3_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora3_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora3_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Protected Areas – Are there National Parks, Wildlife Sanctuaries, or Protected Areas within a 10km radius?</td>
+              <td>
+                <select id="flora4_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora4_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora4_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Migratory Routes – Are there migratory routes for animals or birds within 500 meters of the project?</td>
+              <td>
+                <select id="flora5_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora5_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora5_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Forest Area – Is there any reserved, protected, or community forest within the project influence zone?</td>
+              <td>
+                <select id="flora6_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="flora6_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="flora6_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Climate Vulnerability Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Climate Vulnerability</td>
+            </tr>
+            <tr>
+              <th>Environmental Aspect</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Location in Drought/Flood Prone Areas – Is the project located in drought or flood prone areas?</td>
+              <td>
+                <select id="climate1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Critical Watershed – Is the project located within a critical watershed?</td>
+              <td>
+                <select id="climate2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Coastal/Hazard Zone – Is the project located in a Coastal Regulatory Zone or within a Hazard-line defined by Survey of India?</td>
+              <td>
+                <select id="climate3_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate3_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate3_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>High Temperature Exposure – Will the project be exposed to significant temperature increases or heatwaves?</td>
+              <td>
+                <select id="climate4_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate4_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate4_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Intensive Rainfall – Will the project be exposed to highly intensive rainfall?</td>
+              <td>
+                <select id="climate5_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate5_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate5_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Cyclone/Storm Surge Exposure – Will the project be exposed to cyclones or storm surges?</td>
+              <td>
+                <select id="climate6_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="climate6_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="climate6_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Socio-economic Factors Table -->
+        <table>
+          <colgroup>
+            <col style="width:35%;">
+            <col style="width:15%;">
+            <col style="width:15%;">
+            <col style="width:35%;">
+          </colgroup>
+          <thead>
+            <tr class="table-title">
+              <td colspan="4">Socio-economic Factors</td>
+            </tr>
+            <tr>
+              <th>Screening Question</th>
+              <th>Construction Phase (Yes/No)</th>
+              <th>During Operations (Yes/No)</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Occupational Health & Safety – Does the project involve occupational health safety issues?</td>
+              <td>
+                <select id="socio1_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio1_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio1_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Health Hazards – Does the project involve other health hazards?</td>
+              <td>
+                <select id="socio2_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio2_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio2_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Land Acquisition – Does the project involve land acquisition?</td>
+              <td>
+                <select id="socio3_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio3_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio3_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Loss of Income Sources – Does the project cause loss of access to income sources?</td>
+              <td>
+                <select id="socio4_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio4_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio4_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Local Resident Disturbance – Will the project disturb residents in the vicinity?</td>
+              <td>
+                <select id="socio5_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio5_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio5_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Cultural/Religious Impact – Will the project disturb cultural or religious resources (e.g. places of worship, sacred groves)?</td>
+              <td>
+                <select id="socio6_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio6_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio6_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Receptors – Do schools, hospitals, clinics, markets, etc. fall within the project influence area?</td>
+              <td>
+                <select id="socio7_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio7_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio7_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+            <tr>
+              <td>Public Consultation – Is public consultation required to address local concerns?</td>
+              <td>
+                <select id="socio8_cp">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td>
+                <select id="socio8_do">
+                  <option value=""></option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </td>
+              <td><textarea id="socio8_remarks" rows="4" oninput="autoResize(this)" style="width:100%;"></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      
+      <!-- Submitted By and Approval Section in Specified Order -->
+      <label for="scSubmittedName">Submitted By:</label>
+      <input type="text" id="scSubmittedName" placeholder="Your Name" />
+      
+      <p id="scLastUpdated" style="font-weight:bold;"></p>
+      
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="button" class="btn" id="scEditButton" style="display:none;" onclick="enableScreeningEditing()">Edit</button>
+        <button type="button" class="btn" id="scSaveButton" onclick="saveScreeningChecklist()">Save Screening Checklist</button>
+      </div>
+      
+      <hr>
+      
+      <!-- Approval Section (Approval fields have the class "approval-field" so they are excluded from main edit toggling) -->
+      <label for="scApprovedBy" class="approval-field">Approved By:</label>
+      <input type="text" id="scApprovedBy" class="approval-field" placeholder="Approved By" disabled />
+      
+      <label for="scApprovalStatus" class="approval-field">Approval Status:</label>
+      <select id="scApprovalStatus" class="approval-field" disabled>
+        <option value="">Select</option>
+        <option value="Approved">Approved</option>
+        <option value="Denied">Denied (Return with Comments)</option>
+      </select>
+      
+      <label for="scApprovalComments" class="approval-field">Approval Comments:</label>
+      <textarea id="scApprovalComments" class="approval-field" rows="4" oninput="autoResize(this)" style="width:100%;" disabled></textarea>
+      
+      <p id="scApprovalTimestamp" class="approval-field" style="font-weight:bold;"></p>
+      
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="button" class="btn approval" id="scEditApprovalButton" onclick="enableApprovalEditing()">Edit Approval</button>
+        <button type="button" class="btn approval" id="scSaveApprovalButton" style="display:none;" onclick="saveApproval()">Save Approval</button>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+    // Firebase configuration and initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
+      authDomain: "environmental-audit-tracker.firebaseapp.com",
+      projectId: "environmental-audit-tracker",
+      storageBucket: "environmental-audit-tracker.appspot.com",
+      messagingSenderId: "865145801207",
+      appId: "1:865145801207:web:a7300ccd1a81c5e44646f2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Retrieve current subproject data from localStorage.
+    let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
+    
+    // Auto-resize function for textareas.
+    function autoResize(textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+    
+    // Populate the screening checklist form.
+    function populateScreeningChecklist() {
+      if (currentProjectData) {
+        document.getElementById("scProjectTitle").innerText = currentProjectData.name;
+      }
+      loadScreeningChecklist();
+      // Only toggle screening fields; exclude approval fields.
+      setScreeningFormEditable(false);
+    }
+    
+    // Save the screening checklist data to Firestore.
+    async function saveScreeningChecklist() {
+      const appendix3a = {
+        land: [
+          { constructionPhase: document.getElementById("land1_cp").value, operations: document.getElementById("land1_do").value, remarks: document.getElementById("land1_remarks").value },
+          { constructionPhase: document.getElementById("land2_cp").value, operations: document.getElementById("land2_do").value, remarks: document.getElementById("land2_remarks").value },
+          { constructionPhase: document.getElementById("land3_cp").value, operations: document.getElementById("land3_do").value, remarks: document.getElementById("land3_remarks").value },
+          { constructionPhase: document.getElementById("land4_cp").value, operations: document.getElementById("land4_do").value, remarks: document.getElementById("land4_remarks").value },
+          { constructionPhase: document.getElementById("land5_cp").value, operations: document.getElementById("land5_do").value, remarks: document.getElementById("land5_remarks").value },
+          { constructionPhase: document.getElementById("land6_cp").value, operations: document.getElementById("land6_do").value, remarks: document.getElementById("land6_remarks").value }
+        ],
+        water: [
+          { constructionPhase: document.getElementById("water1_cp").value, operations: document.getElementById("water1_do").value, remarks: document.getElementById("water1_remarks").value },
+          { constructionPhase: document.getElementById("water2_cp").value, operations: document.getElementById("water2_do").value, remarks: document.getElementById("water2_remarks").value },
+          { constructionPhase: document.getElementById("water3_cp").value, operations: document.getElementById("water3_do").value, remarks: document.getElementById("water3_remarks").value },
+          { constructionPhase: document.getElementById("water4_cp").value, operations: document.getElementById("water4_do").value, remarks: document.getElementById("water4_remarks").value }
+        ],
+        air: [
+          { constructionPhase: document.getElementById("air1_cp").value, operations: document.getElementById("air1_do").value, remarks: document.getElementById("air1_remarks").value },
+          { constructionPhase: document.getElementById("air2_cp").value, operations: document.getElementById("air2_do").value, remarks: document.getElementById("air2_remarks").value }
+        ],
+        flora: [
+          { constructionPhase: document.getElementById("flora1_cp").value, operations: document.getElementById("flora1_do").value, remarks: document.getElementById("flora1_remarks").value },
+          { constructionPhase: document.getElementById("flora2_cp").value, operations: document.getElementById("flora2_do").value, remarks: document.getElementById("flora2_remarks").value },
+          { constructionPhase: document.getElementById("flora3_cp").value, operations: document.getElementById("flora3_do").value, remarks: document.getElementById("flora3_remarks").value },
+          { constructionPhase: document.getElementById("flora4_cp").value, operations: document.getElementById("flora4_do").value, remarks: document.getElementById("flora4_remarks").value },
+          { constructionPhase: document.getElementById("flora5_cp").value, operations: document.getElementById("flora5_do").value, remarks: document.getElementById("flora5_remarks").value },
+          { constructionPhase: document.getElementById("flora6_cp").value, operations: document.getElementById("flora6_do").value, remarks: document.getElementById("flora6_remarks").value }
+        ],
+        climate: [
+          { constructionPhase: document.getElementById("climate1_cp").value, operations: document.getElementById("climate1_do").value, remarks: document.getElementById("climate1_remarks").value },
+          { constructionPhase: document.getElementById("climate2_cp").value, operations: document.getElementById("climate2_do").value, remarks: document.getElementById("climate2_remarks").value },
+          { constructionPhase: document.getElementById("climate3_cp").value, operations: document.getElementById("climate3_do").value, remarks: document.getElementById("climate3_remarks").value },
+          { constructionPhase: document.getElementById("climate4_cp").value, operations: document.getElementById("climate4_do").value, remarks: document.getElementById("climate4_remarks").value },
+          { constructionPhase: document.getElementById("climate5_cp").value, operations: document.getElementById("climate5_do").value, remarks: document.getElementById("climate5_remarks").value },
+          { constructionPhase: document.getElementById("climate6_cp").value, operations: document.getElementById("climate6_do").value, remarks: document.getElementById("climate6_remarks").value }
+        ],
+        socio: [
+          { constructionPhase: document.getElementById("socio1_cp").value, operations: document.getElementById("socio1_do").value, remarks: document.getElementById("socio1_remarks").value },
+          { constructionPhase: document.getElementById("socio2_cp").value, operations: document.getElementById("socio2_do").value, remarks: document.getElementById("socio2_remarks").value },
+          { constructionPhase: document.getElementById("socio3_cp").value, operations: document.getElementById("socio3_do").value, remarks: document.getElementById("socio3_remarks").value },
+          { constructionPhase: document.getElementById("socio4_cp").value, operations: document.getElementById("socio4_do").value, remarks: document.getElementById("socio4_remarks").value },
+          { constructionPhase: document.getElementById("socio5_cp").value, operations: document.getElementById("socio5_do").value, remarks: document.getElementById("socio5_remarks").value },
+          { constructionPhase: document.getElementById("socio6_cp").value, operations: document.getElementById("socio6_do").value, remarks: document.getElementById("socio6_remarks").value },
+          { constructionPhase: document.getElementById("socio7_cp").value, operations: document.getElementById("socio7_do").value, remarks: document.getElementById("socio7_remarks").value },
+          { constructionPhase: document.getElementById("socio8_cp").value, operations: document.getElementById("socio8_do").value, remarks: document.getElementById("socio8_remarks").value }
+        ]
+      };
+      
+      const dataToSave = {
+        timestamp: Date.now(),
+        subProjectName: currentProjectData ? currentProjectData.name : "",
+        appendix3a: appendix3a,
+        submittedBy: {
+          name: document.getElementById("scSubmittedName").value
+        },
+        approval: {
+          approvedBy: document.getElementById("scApprovedBy").value,
+          approvalStatus: document.getElementById("scApprovalStatus").value,
+          approvalComments: document.getElementById("scApprovalComments").value,
+          approvalTimestamp: document.getElementById("scApprovalTimestamp").dataset.timestamp || null
+        },
+        lastUpdated: Date.now()
+      };
+      
+      try {
+        if (window.screeningDocId) {
+          await db.collection("subProjects")
+            .doc(currentProjectData.id)
+            .collection("screeningChecklist")
+            .doc(window.screeningDocId)
+            .update(dataToSave);
+        } else {
+          const docRef = await db.collection("subProjects")
+            .doc(currentProjectData.id)
+            .collection("screeningChecklist")
+            .add(dataToSave);
+          window.screeningDocId = docRef.id;
+        }
+        alert("Screening Checklist saved successfully!");
+        loadScreeningChecklist();
+      } catch (error) {
+        console.error("Screening Checklist save failed:", error);
+        alert("Error saving screening checklist. Please try again.");
+      }
+    }
+    
+    // Load screening checklist data from Firestore.
+    async function loadScreeningChecklist() {
+      const snapshot = await db.collection("subProjects")
+        .doc(currentProjectData.id)
+        .collection("screeningChecklist")
+        .get();
+      if (!snapshot.empty) {
+        snapshot.forEach(doc => {
+          window.screeningDocId = doc.id;
+          const data = doc.data();
+          document.getElementById("scSubmittedName").value = data.submittedBy ? data.submittedBy.name : "";
+          if(data.lastUpdated){
+            document.getElementById("scLastUpdated").innerText = "Last Updated: " + new Date(data.lastUpdated).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+          } else {
+            document.getElementById("scLastUpdated").innerText = "";
+          }
+          // Populate Appendix 3a fields for Land
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[0]) {
+            document.getElementById("land1_cp").value = data.appendix3a.land[0].constructionPhase || "";
+            document.getElementById("land1_do").value = data.appendix3a.land[0].operations || "";
+            document.getElementById("land1_remarks").value = data.appendix3a.land[0].remarks || "";
+          }
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[1]) {
+            document.getElementById("land2_cp").value = data.appendix3a.land[1].constructionPhase || "";
+            document.getElementById("land2_do").value = data.appendix3a.land[1].operations || "";
+            document.getElementById("land2_remarks").value = data.appendix3a.land[1].remarks || "";
+          }
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[2]) {
+            document.getElementById("land3_cp").value = data.appendix3a.land[2].constructionPhase || "";
+            document.getElementById("land3_do").value = data.appendix3a.land[2].operations || "";
+            document.getElementById("land3_remarks").value = data.appendix3a.land[2].remarks || "";
+          }
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[3]) {
+            document.getElementById("land4_cp").value = data.appendix3a.land[3].constructionPhase || "";
+            document.getElementById("land4_do").value = data.appendix3a.land[3].operations || "";
+            document.getElementById("land4_remarks").value = data.appendix3a.land[3].remarks || "";
+          }
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[4]) {
+            document.getElementById("land5_cp").value = data.appendix3a.land[4].constructionPhase || "";
+            document.getElementById("land5_do").value = data.appendix3a.land[4].operations || "";
+            document.getElementById("land5_remarks").value = data.appendix3a.land[4].remarks || "";
+          }
+          if(data.appendix3a && data.appendix3a.land && data.appendix3a.land[5]) {
+            document.getElementById("land6_cp").value = data.appendix3a.land[5].constructionPhase || "";
+            document.getElementById("land6_do").value = data.appendix3a.land[5].operations || "";
+            document.getElementById("land6_remarks").value = data.appendix3a.land[5].remarks || "";
+          }
+          // (Similarly populate Water, Air, Flora, Climate, and Socio-economic fields as needed.)
+          
+          // Load Approval details if available.
+          if(data.approval) {
+            document.getElementById("scApprovedBy").value = data.approval.approvedBy || "";
+            document.getElementById("scApprovalStatus").value = data.approval.approvalStatus || "";
+            document.getElementById("scApprovalComments").value = data.approval.approvalComments || "";
+            document.getElementById("scApprovalTimestamp").innerText = "Approval Last Updated: " + new Date(data.approval.approvalTimestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+            document.getElementById("scApprovalTimestamp").dataset.timestamp = data.approval.approvalTimestamp;
+          } else {
+            document.getElementById("scApprovedBy").value = "";
+            document.getElementById("scApprovalStatus").value = "";
+            document.getElementById("scApprovalComments").value = "";
+            document.getElementById("scApprovalTimestamp").innerText = "";
+          }
+        });
+      } else {
+        document.getElementById("scSubmittedName").value = "";
+        document.getElementById("scLastUpdated").innerText = "";
+      }
+      setScreeningFormEditable(false);
+    }
+    
+    // Toggle form editability for screening checklist (excluding approval fields).
+    function setScreeningFormEditable(isEditable) {
+      // Exclude elements that have the "approval-field" class.
+      const elements = document.querySelectorAll("#screeningForm input:not(.approval-field), #screeningForm select:not(.approval-field), #screeningForm textarea:not(.approval-field)");
+      elements.forEach(el => {
+        el.disabled = !isEditable;
+      });
+      document.getElementById("scSaveButton").style.display = isEditable ? "inline-block" : "none";
+      document.getElementById("scEditButton").style.display = isEditable ? "none" : "inline-block";
+    }
+    
+    function enableScreeningEditing() {
+      setScreeningFormEditable(true);
+    }
+    
+    // Enable editing of the approval section.
+    function enableApprovalEditing() {
+      const pass = prompt("Enter password to enable editing of approval details:");
+      if (pass === "1111") {
+        // Only enable approval fields.
+        document.getElementById("scApprovedBy").disabled = false;
+        document.getElementById("scApprovalStatus").disabled = false;
+        document.getElementById("scApprovalComments").disabled = false;
+        document.getElementById("scEditApprovalButton").style.display = "none";
+        document.getElementById("scSaveApprovalButton").style.display = "inline-block";
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+    
+    // Save the approval details to Firestore.
+    async function saveApproval() {
+      const approval = {
+        approvedBy: document.getElementById("scApprovedBy").value,
+        approvalStatus: document.getElementById("scApprovalStatus").value,
+        approvalComments: document.getElementById("scApprovalComments").value,
+        approvalTimestamp: Date.now()
+      };
+      try {
+        await db.collection("subProjects")
+          .doc(currentProjectData.id)
+          .collection("screeningChecklist")
+          .doc(window.screeningDocId)
+          .update({ approval: approval });
+        alert("Approval details updated successfully!");
+        document.getElementById("scApprovalTimestamp").innerText = "Approval Last Updated: " + new Date(approval.approvalTimestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        document.getElementById("scApprovalTimestamp").dataset.timestamp = approval.approvalTimestamp;
+        document.getElementById("scApprovedBy").disabled = true;
+        document.getElementById("scApprovalStatus").disabled = true;
+        document.getElementById("scApprovalComments").disabled = true;
+        document.getElementById("scEditApprovalButton").style.display = "inline-block";
+        document.getElementById("scSaveApprovalButton").style.display = "none";
+      } catch (error) {
+        alert("Error updating approval details. Please try again.");
+        console.error("Approval update failed:", error);
+      }
+    }
+    
+    // Back button function.
+    function goBack() {
+      window.history.back();
+    }
+    
+    window.addEventListener("load", function() {
+      if (!currentProjectData || !currentProjectData.id) {
+        alert("No subproject selected. Please select a subproject from Output 1.");
+        window.location.href = "output1.html";
+        return;
+      }
+      populateScreeningChecklist();
+    });
+  </script>
+</body>
+</html>
