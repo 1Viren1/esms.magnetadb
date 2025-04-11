@@ -2,27 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Project Map with Embedded GeoJSON</title>
+  <title>Project Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: 'Inter', sans-serif;
-      margin: 0;
-      background: #f0f0f0;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
     }
     header {
       background-color: #1976d2;
       color: white;
-      padding: 20px;
+      padding: 30px 20px;
       text-align: center;
       position: relative;
     }
     header h1 {
-      margin: 0;
-      font-size: 28px;
+      font-size: 36px;
       letter-spacing: 1px;
+      margin: 0;
     }
     .back-icon {
       position: absolute;
@@ -36,27 +41,42 @@
       cursor: pointer;
       transition: color 0.2s ease;
     }
-    .back-icon:hover { color: #e0e0e0; }
-    /* Legend placed at the top of the map */
-    .legend {
-      text-align: center;
-      margin: 10px auto;
-      width: 1600px;
+    .back-icon:hover {
+      color: #0d47a1;
     }
-    .legend span {
-      display: inline-block;
-      margin: 0 10px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      color: white;
-      font-weight: 600;
-    }
-    svg {
-      display: block;
-      margin: 0 auto 20px auto;
+    /* Map container with relative positioning */
+    #map-container {
+      position: relative;
+      width: 1200px;
+      height: 900px;
+      margin: 20px auto 40px auto;
       background: #fff;
       border: 2px solid #1976d2;
       border-radius: 8px;
+    }
+    /* SVG takes full container size */
+    #map {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    /* Legend inside the map container, positioned at the right */
+    #legend {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border: 1px solid #1976d2;
+      border-radius: 4px;
+    }
+    #legend span {
+      display: block;
+      margin-bottom: 8px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -67,11 +87,12 @@
     <h1>Project Map</h1>
   </header>
 
-  <!-- Legend Container (placed at the top) -->
-  <div class="legend" id="legend"></div>
-  
-  <!-- SVG container for map (2x bigger: 1600x1200) -->
-  <svg id="map" width="1600" height="1200"></svg>
+  <!-- Map Container -->
+  <div id="map-container">
+    <svg id="map" width="1200" height="900"></svg>
+    <!-- Legend placed inside the map container at the right side -->
+    <div id="legend"></div>
+  </div>
   
   <!-- Firebase and D3.js scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -92,7 +113,7 @@
     const db = firebase.firestore();
 
     // --- D3 and SVG Map Setup ---
-    const width = 1600, height = 1200;
+    const width = 1200, height = 900;
     const svg = d3.select("#map");
 
     // Define an Albers projection with scale 7000.
@@ -101,7 +122,7 @@
       .center([0, 20])
       .parallels([15, 25])
       .scale(7000)
-      .translate([width / 2, height / 2]);
+      .translate([width / 1.8, height / 3]);
 
     const path = d3.geoPath().projection(projection);
 
@@ -120,16 +141,17 @@
        .attr("stroke-width", 1);
 
     // --- Category Colours Mapping ---
-    // All FIL categories (any value containing "fil") will be grouped under the key "fil"
+    // Group all FIL categories under "fil" and handle others separately.
     const categoryColors = {
       nursery: "blue",                   // Hi-Tech Nursery
       tissue: "orange",                  // Tissue Culture Lab
       innovation: "green",               // New & Innovative Technologies
+      "matching grant": "red",           // Matching Grant projects
       fil: "purple",                     // All FIL projects
       "msamb subprojects": "cyan"        // MSAMB Subprojects
     };
 
-    // --- Function to Add a Marker with a Click Event ---
+    // --- Function to Add a Marker with Click Event ---
     function addMarker(x, y, color, title) {
       svg.append("circle")
          .attr("cx", x)
@@ -159,7 +181,7 @@
                 // Projection expects [lng, lat]
                 const projected = projection([lng, lat]);
                 let catKey = (data.category || "").toLowerCase();
-                // Group FIL categories together under "fil"
+                // Group any category containing "fil" under "fil"
                 if (catKey.includes("fil")) {
                   catKey = "fil";
                 }
@@ -169,20 +191,27 @@
             }
           }
         });
-      })
-      .catch(error => {
-        console.error("Error loading subprojects: ", error);
+      }).catch(error => {
+        console.error("Error loading subprojects:", error);
       });
     }
     loadSubProjectMarkers();
 
-    // --- Build a Legend for the Map (Placed at Top) ---
+    // --- Build Legend (placed inside the map container at the right) ---
     function buildLegend() {
       const legendContainer = d3.select("#legend");
-      legendContainer.html(""); // Clear any existing legend.
+      legendContainer.html(""); // Clear any existing legend content.
       for (let cat in categoryColors) {
-        // For the FIL group, label it simply "Fil"
-        let label = (cat === "fil") ? "Fil" : cat.charAt(0).toUpperCase() + cat.slice(1);
+        let label;
+        if (cat === "fil") {
+          label = "FIL";
+        } else if (cat === "msamb subprojects") {
+          label = "MSAMB";
+        } else if (cat === "matching grant") {
+          label = "Matching Grant";
+        } else {
+          label = cat.charAt(0).toUpperCase() + cat.slice(1);
+        }
         legendContainer.append("span")
           .style("background-color", categoryColors[cat])
           .text(label);
@@ -192,7 +221,7 @@
 
     // --- Back Button Function ---
     function goBack() {
-      window.location.href = "index.html"; // Or use history.back()
+      window.location.href = "index.html"; // Or simply use history.back()
     }
   </script>
 </body>
