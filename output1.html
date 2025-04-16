@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Output 1</title>
+  <title>Output 1 - Category Stacked</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
       background: linear-gradient(to right, #e3f2fd, #fce4ec);
     }
     header {
-      background-color: #1976d2;
+      background-color: #002569;
       color: white;
       padding: 20px;
       text-align: center;
@@ -53,7 +53,6 @@
       padding: 40px 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       position: relative;
-      text-align: center;
       animation: fadeIn 0.5s ease-in-out;
     }
     .active { display: block; }
@@ -65,30 +64,43 @@
       font-size: 24px;
       font-weight: 600;
       margin-bottom: 20px;
+      text-align: center;
     }
-    /* Removed duplicate title added via pseudo-element */
-    .sub-heading {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    /* Category container – ensures three boxes appear side by side */
-    .category-container {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-    .category-box {
-      flex: 1;
-      min-width: 300px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+    /* Category Selection Section */
+    .category-select-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 15px;
+    }
+    .category-btn {
+      width: 80%;
+      padding: 15px 25px;
+      background-color: #e0f7fa;
+      color: #1976d2;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .category-btn:hover { background-color: #b2ebf2; }
+    /* Category Detail Section */
+    .category-detail-header {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .category-detail-header .btn,
+    .category-detail-header .edit-btn {
+      width: auto;
+      padding: 10px 20px;
+    }
+    .subprojects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
     /* Buttons */
     .btn {
@@ -102,9 +114,7 @@
       font-size: 14px;
       transition: background 0.3s ease;
       text-decoration: none;
-      margin: 6px 0;
-      display: inline-block;
-      width: 80%;
+      text-align: center;
     }
     .btn:hover { background-color: #1565c0; }
     .edit-btn {
@@ -115,32 +125,20 @@
       border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
-      margin: 6px 0;
-      display: inline-block;
-      width: 80%;
+      transition: background 0.3s ease;
+      text-align: center;
     }
     .edit-btn:hover { background-color: #e59400; }
-    /* Project Entry */
+    /* Project Entry for grid view */
     .project-entry {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: #f9f9f9;
       border: 1px solid #1976d2;
       padding: 10px;
-      margin-top: 10px;
       border-radius: 6px;
-    }
-    .project-name {
-      flex: 1;
-      font-weight: bold;
-      color: #1976d2;
-      text-align: center;
       cursor: pointer;
+      text-align: center;
     }
-    .project-name.edit-mode {
-      color: red;
-    }
+    .project-entry.edit-mode { color: red; }
     /* Popup Form Styling */
     .form-container {
       text-align: left;
@@ -206,31 +204,26 @@
     <h1>Output 1</h1>
   </header>
   
-  <!-- Category Section -->
-  <div id="categorySection" class="section active">
-    <div class="page-title">Project Components</div>
-    <div class="category-container">
-      <!-- Hi-Tech Nursery Category -->
-      <div class="category-box">
-        <div class="sub-heading">Hi-Tech Nursery</div>
-        <button class="btn" onclick="openForm('nursery')">Create New</button>
-        <button id="toggleNursery" class="edit-btn" onclick="toggleEditMode('nursery')">Edit</button>
-        <div id="nurseryList"></div>
-      </div>
-      <!-- Tissue Culture Lab Category -->
-      <div class="category-box">
-        <div class="sub-heading">Tissue Culture Lab</div>
-        <button class="btn" onclick="openForm('tissue')">Create New</button>
-        <button id="toggleTissue" class="edit-btn" onclick="toggleEditMode('tissue')">Edit</button>
-        <div id="tissueList"></div>
-      </div>
-      <!-- New & Innovative Technologies Category -->
-      <div class="category-box">
-        <div class="sub-heading">New & Innovative Technologies</div>
-        <button class="btn" onclick="openForm('innovation')">Create New</button>
-        <button id="toggleInnovation" class="edit-btn" onclick="toggleEditMode('innovation')">Edit</button>
-        <div id="innovationList"></div>
-      </div>
+  <!-- Category Selection Section -->
+  <div id="categorySelectSection" class="section active">
+    <div class="page-title">Select Project Category</div>
+    <div class="category-select-container">
+      <button class="category-btn" onclick="openCategoryDetail('nursery')">Hi-Tech Nursery</button>
+      <button class="category-btn" onclick="openCategoryDetail('tissue')">Tissue Culture Lab</button>
+      <button class="category-btn" onclick="openCategoryDetail('innovation')">New &amp; Innovative Technologies</button>
+    </div>
+  </div>
+  
+  <!-- Category Detail Section -->
+  <div id="categoryDetailSection" class="section">
+    <button class="detail-back" onclick="backToCategorySelect()">&#8592;</button>
+    <div class="page-title" id="selectedCategoryTitle"></div>
+    <div class="category-detail-header">
+      <button class="btn" onclick="openForm(currentCategory)">Create New</button>
+      <button id="toggleButton" class="edit-btn" onclick="toggleEditMode(currentCategory)">Edit</button>
+    </div>
+    <div class="subprojects-grid" id="subprojectsGrid">
+      <!-- Projects will be rendered here -->
     </div>
   </div>
   
@@ -309,21 +302,21 @@
       <input type="text" id="outputComponent" placeholder="Subproject Components">
       <input type="text" id="eligibleCost" placeholder="Subproject Cost">
       
-      <!-- Environmental Categorisation Dropdown (only options B and C) -->
+      <!-- Environmental Categorisation Dropdown -->
       <select id="envCategory">
         <option value="">Select Environmental Categorisation</option>
         <option value="B">B</option>
         <option value="C">C</option>
       </select>
       
-      <!-- Involuntary Resettlement Categorisation Dropdown (only options B and C) -->
+      <!-- Involuntary Resettlement Categorisation Dropdown -->
       <select id="resettlementCategory">
         <option value="">Select Involuntary Resettlement Categorisation</option>
         <option value="B">B</option>
         <option value="C">C</option>
       </select>
       
-      <!-- Indigenous People Categorisation Dropdown (only options B and C) -->
+      <!-- Indigenous People Categorisation Dropdown -->
       <select id="indigenousCategory">
         <option value="">Select Indigenous People Categorisation</option>
         <option value="B">B</option>
@@ -339,7 +332,7 @@
   
   <!-- Detail Section -->
   <div id="detailSection" class="section">
-    <button class="detail-back" onclick="backToCategory()">&#8592;</button>
+    <button class="detail-back" onclick="backToCategoryDetail()">&#8592;</button>
     <h2 id="detailTitle">Subproject Details</h2>
     <div id="detailInfo"></div>
     <div class="detail-buttons">
@@ -368,36 +361,60 @@
     let editMode = false; // true when editing a project via form
     let editId = null;
     let currentProjectData = null;
-    // For output1, we support three categories (using lowercase keys)
+    // For output1 we support three categories using keys: nursery, tissue, innovation
     const editEnabled = {
       nursery: false,
       tissue: false,
       innovation: false
     };
     
-    // Toggle global edit mode for a category
+    // Open the category detail view
+    function openCategoryDetail(category) {
+      currentCategory = category;
+      let displayName = "";
+      if (category === "nursery") displayName = "Hi-Tech Nursery";
+      else if (category === "tissue") displayName = "Tissue Culture Lab";
+      else if (category === "innovation") displayName = "New & Innovative Technologies";
+      document.getElementById("selectedCategoryTitle").innerText = displayName + " Projects";
+      document.getElementById("categorySelectSection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.add("active");
+      loadSubprojectsForCategory();
+    }
+    
+    // Back from category detail to selection view
+    function backToCategorySelect() {
+      document.getElementById("categoryDetailSection").classList.remove("active");
+      document.getElementById("categorySelectSection").classList.add("active");
+    }
+    
+    // Back from detail view to category detail view
+    function backToCategoryDetail() {
+      document.getElementById("detailSection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.add("active");
+    }
+    
+    // Toggle edit mode for the current category using a unified button (id: toggleButton)
     function toggleEditMode(category) {
-      // Build the correct button ID with proper capitalisation.
-      const buttonId = "toggle" + category.charAt(0).toUpperCase() + category.slice(1);
-      if (editEnabled[category]) {
-        editEnabled[category] = false;
-        document.getElementById(buttonId).innerText = "Edit";
+      const catKey = category;
+      if (editEnabled[catKey]) {
+        editEnabled[catKey] = false;
+        document.getElementById("toggleButton").innerText = "Edit";
       } else {
         const pass = prompt("Enter password to enable editing for all projects in " + category + ":");
-        if (pass === "1111") {
-          editEnabled[category] = true;
-          document.getElementById(buttonId).innerText = "Exit Edit Mode";
+        if (pass === "Shield007!") {
+          editEnabled[catKey] = true;
+          document.getElementById("toggleButton").innerText = "Exit Edit Mode";
         } else {
           alert("Incorrect password.");
         }
       }
-      loadSubprojects();
+      loadSubprojectsForCategory();
     }
     
     // Open form for creating or editing a project
     function openForm(category, existingData = null, docId = null) {
       currentCategory = category;
-      document.getElementById("categorySection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.remove("active");
       document.getElementById("formSection").classList.add("active");
       if (existingData && docId) {
         document.getElementById("formTitle").innerText = "Edit Subproject";
@@ -446,15 +463,20 @@
       document.getElementById("indigenousCategory").value = "";
     }
     
-    // Cancel the form and return to category view
+    // Cancel the form and return to the proper view
     function cancelForm() {
       document.getElementById("formSection").classList.remove("active");
       document.getElementById("deleteBtn").style.display = "none";
       editMode = false;
       editId = null;
       currentProjectData = null;
-      loadSubprojects();
-      document.getElementById("categorySection").classList.add("active");
+      // Return to category detail view if a category is selected
+      if (currentCategory) {
+        loadSubprojectsForCategory();
+        document.getElementById("categoryDetailSection").classList.add("active");
+      } else {
+        document.getElementById("categorySelectSection").classList.add("active");
+      }
     }
     
     // Save or update a project in Firestore
@@ -474,8 +496,7 @@
         category: currentCategory,
         timestamp: Date.now()
       };
-
-      // Enforce that all fields must be filled for both new and edited subprojects.
+      
       if (
         !data.name.trim() || 
         !data.entityType.trim() || 
@@ -489,10 +510,10 @@
         !data.resettlementCategory.trim() || 
         !data.indigenousCategory.trim()
       ) {
-          alert("Please fill in all fields.");
-          return;
+        alert("Please fill in all fields.");
+        return;
       }
-
+      
       try {
         if (editMode && editId) {
           await db.collection("subProjects").doc(editId).update(data);
@@ -509,7 +530,7 @@
     // Delete the current project (from edit form)
     async function deleteProject() {
       const pass = prompt("Enter password to delete the project:");
-      if (pass === "1111") {
+      if (pass === "Shield007!") {
         try {
           await db.collection("subProjects").doc(editId).delete();
           cancelForm();
@@ -522,65 +543,44 @@
       }
     }
     
-    // Render a project entry for a given category
-    function renderSubprojectEntry(id, data) {
-      // Compare the stored homepage division with the project's division.
+    // Load projects from Firestore for the current category, filtering by division
+    async function loadSubprojectsForCategory() {
+      document.getElementById("subprojectsGrid").innerHTML = "";
       const selectedDivision = (localStorage.getItem("selectedDivision") || "all").toLowerCase();
-      const projectDiv = (data.division || "").toLowerCase();
-      if (selectedDivision !== "all" && projectDiv !== selectedDivision) return;
-      
-      // Standardise the category to lowercase.
-      const cat = (data.category || "").toLowerCase();
-      let containerId = "";
-      if (cat === "nursery") containerId = "nurseryList";
-      else if (cat === "tissue") containerId = "tissueList";
-      else if (cat === "innovation") containerId = "innovationList";
-      else return;
-      
-      const container = document.getElementById(containerId);
-      const row = document.createElement("div");
-      row.className = "project-entry";
-      
-      const nameDiv = document.createElement("div");
-      nameDiv.className = "project-name";
-      
-      if (editEnabled[cat]) {
-        nameDiv.classList.add("edit-mode");
-        nameDiv.addEventListener("click", function() {
+      const snapshot = await db.collection("subProjects").orderBy("timestamp", "desc").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.category === currentCategory) {
+          const projectDiv = (data.division || "").toLowerCase();
+          if (selectedDivision !== "all" && projectDiv !== selectedDivision) return;
+          renderSubprojectEntry(doc.id, data);
+        }
+      });
+    }
+    
+    // Render a project entry into the grid container
+    function renderSubprojectEntry(id, data) {
+      const entry = document.createElement("div");
+      entry.className = "project-entry";
+      if (editEnabled[currentCategory]) {
+        entry.classList.add("edit-mode");
+        entry.addEventListener("click", function() {
           openForm(data.category, data, id);
           document.getElementById("deleteBtn").style.display = "block";
         });
       } else {
-        nameDiv.addEventListener("click", function() {
+        entry.addEventListener("click", function() {
           openProjectDetail(id, data);
         });
       }
-      nameDiv.innerText = data.name;
-      
-      row.appendChild(nameDiv);
-      container.appendChild(row);
-    }
-    
-    // Load projects from Firestore, filtering by division and ordering by timestamp
-    async function loadSubprojects() {
-      document.getElementById("nurseryList").innerHTML = "";
-      document.getElementById("tissueList").innerHTML = "";
-      document.getElementById("innovationList").innerHTML = "";
-      
-      const snapshot = await db.collection("subProjects").orderBy("timestamp", "desc").get();
-      snapshot.forEach(doc => {
-        renderSubprojectEntry(doc.id, doc.data());
-      });
+      entry.innerText = data.name;
+      document.getElementById("subprojectsGrid").appendChild(entry);
     }
     
     // Open detail view for a project (normal mode)
     function openProjectDetail(id, data) {
-      // Set currentProjectData and add the document ID.
-      currentProjectData = data;
-      currentProjectData.id = id;
-      // Save the current subproject's data to localStorage for use in screening and audit forms.
+      currentProjectData = { ...data, id };
       localStorage.setItem("currentProjectData", JSON.stringify(currentProjectData));
-      
       document.getElementById("detailTitle").innerText = data.name;
       let detailsHtml = `<p><strong>Entity Type:</strong> ${data.entityType || ""}</p>`;
       detailsHtml += `<p><strong>District:</strong> ${data.district || ""}</p>`;
@@ -592,14 +592,14 @@
       detailsHtml += `<p><strong>Environmental Categorisation:</strong> ${data.envCategory || ""}</p>`;
       detailsHtml += `<p><strong>Involuntary Resettlement Categorisation:</strong> ${data.resettlementCategory || ""}</p>`;
       detailsHtml += `<p><strong>Indigenous People Categorisation:</strong> ${data.indigenousCategory || ""}</p>`;
-      // Removed any reference to "Project Data"
+      
       document.getElementById("detailInfo").innerHTML = detailsHtml;
-      document.getElementById("categorySection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.remove("active");
       document.getElementById("formSection").classList.remove("active");
       document.getElementById("detailSection").classList.add("active");
     }
     
-    // Detail navigation buttons (Environment Screening Checklist 3A button removed)
+    // Detail navigation buttons
     document.getElementById("env3aBtn").addEventListener("click", function() {
       window.location.href = "environment3a.html";
     });
@@ -613,18 +613,15 @@
       window.location.href = "auditMonitoring.html";
     });
     
-    // Back from detail view to category view
-    function backToCategory() {
-      document.getElementById("detailSection").classList.remove("active");
-      document.getElementById("categorySection").classList.add("active");
-    }
-    
-    // Back button in header to go to output selection section
+    // Back button in header to go to output selection
     function goBackToOutputSelection() {
       window.location.href = "index.html#outputSection";
     }
     
-    window.addEventListener("load", loadSubprojects);
+    window.addEventListener("load", function() {
+      // Initially load projects if needed (this may be empty until a category is selected)
+      loadSubprojectsForCategory();
+    });
   </script>
 </body>
 </html>
