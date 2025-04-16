@@ -9,6 +9,7 @@
   <!-- Firebase and jsPDF Scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- html2canvas Script for accurate rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -21,7 +22,7 @@
       background: linear-gradient(to right, #e3f2fd, #fce4ec);
     }
     header {
-      background-color: #1976d2;
+      background-color: #002569;
       color: white;
       padding: 20px;
       text-align: center;
@@ -66,7 +67,8 @@
     }
     .report-container input[type="text"],
     .report-container select,
-    .report-container textarea {
+    .report-container textarea,
+    .report-container input[type="file"] {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
@@ -136,7 +138,11 @@
       
       <label for="visitBy">Visit Conducted By:</label>
       <input type="text" id="visitBy" placeholder="Name of Visitor" />
-      
+
+      <!-- New file input for photo upload -->
+      <label for="photoUpload">Upload Photo:</label>
+      <input type="file" id="photoUpload" accept="image/*" />
+
       <table>
         <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
         <thead>
@@ -168,7 +174,7 @@
   </div>
   
   <script>
-    // Firebase configuration and initialization
+    // Firebase configuration and initialisation
     const firebaseConfig = {
       apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
       authDomain: "environmental-audit-tracker.firebaseapp.com",
@@ -179,6 +185,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage(); // Initialise Firebase Storage
     
     // Retrieve current subproject data from localStorage.
     let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
@@ -191,6 +198,7 @@
       }
       document.getElementById("visitDate").value = "";
       document.getElementById("visitBy").value = "";
+      document.getElementById("photoUpload").value = "";
       
       // Create five empty rows for observations.
       const tbody = document.getElementById("observationTable");
@@ -208,12 +216,25 @@
       document.getElementById("uploadStatus").innerText = "";
     }
     
-    // Save the audit form data to Firestore.
+    // Function to upload photo to Firebase Storage.
+    async function uploadPhoto(file) {
+      const storageRef = storage.ref();
+      const photoRef = storageRef.child('auditPhotos/' + Date.now() + '_' + file.name);
+      const snapshot = await photoRef.put(file);
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    }
+    
+    // Save the audit form data to Firestore, including the photo URL.
     async function saveForm() {
       const beneficiary = document.getElementById("beneficiary").value;
       const address = document.getElementById("address").value;
       const visitDate = document.getElementById("visitDate").value;
       const visitBy = document.getElementById("visitBy").value;
+      const fileInput = document.getElementById("photoUpload");
+      let photoURL = "";
+      
+      // Get observations from the table.
       const rows = document.querySelectorAll("#observationTable tr");
       const observations = [];
       rows.forEach(row => {
@@ -224,6 +245,19 @@
           timeline: tds[2].value
         });
       });
+      
+      // Upload image if one is selected.
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        try {
+          photoURL = await uploadPhoto(file);
+        } catch (error) {
+          alert("Error uploading photo. Please try again.");
+          console.error("Photo upload failed:", error);
+          return;
+        }
+      }
+      
       const timestamp = Date.now();
       try {
         await db.collection("subProjects")
@@ -235,6 +269,7 @@
             visitDate,
             visitBy,
             observations,
+            photoURL, // Save the photo URL.
             timestamp
           });
         document.getElementById("uploadStatus").innerText = "Form saved successfully!";
@@ -276,6 +311,12 @@
           html += `<p><strong>Address:</strong> ${data.address}</p>`;
           html += `<p><strong>Visit Date:</strong> ${data.visitDate}</p>`;
           html += `<p><strong>Visit Conducted By:</strong> ${data.visitBy}</p>`;
+          
+          // If there is an uploaded photo, display it.
+          if (data.photoURL) {
+            html += `<p><strong>Uploaded Photo:</strong><br/><img src="${data.photoURL}" alt="Audit Photo" style="max-width: 100%; height:auto;"/></p>`;
+          }
+          
           html += `<table>
                      <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
                      <thead>
@@ -312,7 +353,7 @@
     // Delete a specific audit entry.
     async function deleteEntry(docId) {
       const pass = prompt("Enter password to delete this entry:");
-      if (pass !== "1111") {
+      if (pass !== "Shield007!") {
         alert("Incorrect password.");
         return;
       }
@@ -332,7 +373,7 @@
     // Enable inline editing for an audit entry.
     async function inlineEditAuditEntry(docId, containerDiv) {
       const pass = prompt("Enter password to edit this entry:");
-      if (pass !== "1111") {
+      if (pass !== "Shield007!") {
         alert("Incorrect password.");
         return;
       }
