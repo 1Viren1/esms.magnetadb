@@ -16,7 +16,7 @@
     }
     /* Header (Blue Box) appears only on main landing page */
     header {
-      background-color: #1976d2;
+      background-color: #002569;
       color: white;
       padding: 30px 20px;
       text-align: center;
@@ -140,6 +140,22 @@
   </div>
   
   <script>
+    // Mapping for division-wise passwords (all passwords are alphanumeric and Avengers related)
+    const divisionPasswords = {
+      "all": "AvengersAssemble1!",
+      "amravati": "IronMan123!",
+      "chSambhajiNagar": "CaptainMarvel456!",
+      "kolhapur": "Thor789!",
+      "latur": "HulkSmash101!",
+      "nagpur": "BlackWidow202!",
+      "nashik": "Hawkeye303!",
+      "pune": "SpiderMan404!",
+      "ratnagiri": "AntMan505!"
+    };
+
+    // Repository button password (Avengers related)
+    const repositoryPassword = "Shield007!";
+
     // Function to show/hide sections based on the hash value
     function updateViewBasedOnHash() {
       if(window.location.hash === "#outputSection") {
@@ -166,8 +182,10 @@
       const selectedDivision = document.getElementById("divisionSelect").value;
       localStorage.setItem("selectedDivision", selectedDivision);
       
-      const password = prompt("Please enter the password:");
-      if(password === "2222") {
+      // Prompt for the password based on the selected division
+      const userPassword = prompt("Please enter the password:");
+      
+      if(userPassword === divisionPasswords[selectedDivision]) {
         window.location.hash = "outputSection";
         updateViewBasedOnHash();
       } else {
@@ -175,9 +193,14 @@
       }
     });
     
-    // Repository button navigates to repository.html (to be coded later)
+    // Repository button click event with repository password check
     document.getElementById("repositoryBtn").addEventListener("click", function() {
-      window.location.href = "repository.html";
+      const repoPasswordInput = prompt("Please enter the repository password:");
+      if(repoPasswordInput === repositoryPassword) {
+        window.location.href = "repository.html";
+      } else {
+        alert("Incorrect repository password. Please try again.");
+      }
     });
     
     // View Project Map button navigates to projectMap.html (to be coded later)
