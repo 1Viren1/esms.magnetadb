@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Output 2</title>
+  <title>Output 2 - Category Buttons Stacked</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
       background: linear-gradient(to right, #e3f2fd, #fce4ec);
     }
     header {
-      background-color: #1976d2;
+      background-color: #002569;
       color: white;
       padding: 20px;
       text-align: center;
@@ -53,7 +53,6 @@
       padding: 40px 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       position: relative;
-      text-align: center;
       animation: fadeIn 0.5s ease-in-out;
     }
     .active { display: block; }
@@ -65,30 +64,43 @@
       font-size: 24px;
       font-weight: 600;
       margin-bottom: 20px;
+      text-align: center;
     }
-    /* Category container */
-    .category-container {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-    .category-box {
-      flex: 1;
-      min-width: 300px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      /* Arrange buttons in a column */
+    /* Category selection section: vertically stacked buttons */
+    .category-select-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 15px;
     }
-    .sub-heading {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 10px;
+    .category-btn {
+      width: 80%;
+      padding: 15px 25px;
+      background-color: #e0f7fa; /* very light blue */
+      color: #1976d2; /* dark blue text for contrast */
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .category-btn:hover { background-color: #b2ebf2; }
+    /* Category detail section with buttons on top and two-column grid below */
+    .category-detail-header {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .category-detail-header .btn,
+    .category-detail-header .edit-btn {
+      width: auto;
+      padding: 10px 20px;
+    }
+    .subprojects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
     /* Buttons */
     .btn {
@@ -102,9 +114,7 @@
       font-size: 14px;
       transition: background 0.3s ease;
       text-decoration: none;
-      margin: 6px 0;
-      display: inline-block;
-      width: 80%;
+      text-align: center;
     }
     .btn:hover { background-color: #1565c0; }
     /* Small toggle edit button */
@@ -116,32 +126,20 @@
       border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
-      margin: 6px 0;
-      display: inline-block;
-      width: 80%;
+      transition: background 0.3s ease;
+      text-align: center;
     }
     .edit-btn:hover { background-color: #e59400; }
     /* Project Entry */
     .project-entry {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: #f9f9f9;
       border: 1px solid #1976d2;
       padding: 10px;
-      margin-top: 10px;
       border-radius: 6px;
-    }
-    .project-name {
-      flex: 1;
-      font-weight: bold;
-      color: #1976d2;
-      text-align: center;
       cursor: pointer;
+      text-align: center;
     }
-    .project-name.edit-mode {
-      color: red;
-    }
+    .project-entry.edit-mode { color: red; }
     /* Popup Form Styling */
     .form-container {
       text-align: left;
@@ -207,49 +205,34 @@
     <h1>Output 2</h1>
   </header>
   
-  <!-- Category Section -->
-  <div id="categorySection" class="section active">
-    <div class="page-title">Project Components</div>
-    <div class="category-container">
-      <!-- Matching Grant Category -->
-      <div class="category-box">
-        <div class="sub-heading">Matching Grant</div>
-        <button class="btn" onclick="openForm('Matching Grant')">Create New</button>
-        <button id="toggleMatchingGrant" class="edit-btn" onclick="toggleEditMode('Matching Grant')">Edit</button>
-        <div id="matchingGrantList"></div>
-      </div>
-      <!-- FIL Bank Of India Category -->
-      <div class="category-box">
-        <div class="sub-heading">FIL Bank Of India</div>
-        <button class="btn" onclick="openForm('FIL Bank Of India')">Create New</button>
-        <button id="toggleFilBankOfIndia" class="edit-btn" onclick="toggleEditMode('FIL Bank Of India')">Edit</button>
-        <div id="filBankList"></div>
-      </div>
-      <!-- FIL Samunnati Category -->
-      <div class="category-box">
-        <div class="sub-heading">FIL Samunnati</div>
-        <button class="btn" onclick="openForm('FIL Samunnati')">Create New</button>
-        <button id="toggleFilSamunnati" class="edit-btn" onclick="toggleEditMode('FIL Samunnati')">Edit</button>
-        <div id="filSamunnatiList"></div>
-      </div>
-      <!-- FIL Federal Bank Category -->
-      <div class="category-box">
-        <div class="sub-heading">FIL Federal Bank</div>
-        <button class="btn" onclick="openForm('FIL Federal Bank')">Create New</button>
-        <button id="toggleFilFederalBank" class="edit-btn" onclick="toggleEditMode('FIL Federal Bank')">Edit</button>
-        <div id="filFederalBankList"></div>
-      </div>
-      <!-- FIL Nabkisan Category -->
-      <div class="category-box">
-        <div class="sub-heading">FIL Nabkisan</div>
-        <button class="btn" onclick="openForm('FIL Nabkisan')">Create New</button>
-        <button id="toggleFilNabkisan" class="edit-btn" onclick="toggleEditMode('FIL Nabkisan')">Edit</button>
-        <div id="filNabkisanList"></div>
-      </div>
+  <!-- Category Selection Section -->
+  <div id="categorySelectSection" class="section active">
+    <div class="page-title">Select Project Category</div>
+    <div class="category-select-container">
+      <button class="category-btn" onclick="openCategoryDetail('Matching Grant')">Matching Grant</button>
+      <button class="category-btn" onclick="openCategoryDetail('FIL Bank Of India')">FIL Bank Of India</button>
+      <button class="category-btn" onclick="openCategoryDetail('FIL Samunnati')">FIL Samunnati</button>
+      <button class="category-btn" onclick="openCategoryDetail('FIL Federal Bank')">FIL Federal Bank</button>
+      <button class="category-btn" onclick="openCategoryDetail('FIL Nabkisan')">FIL Nabkisan</button>
     </div>
   </div>
   
-  <!-- Form Section (same as Output1) -->
+  <!-- Category Detail Section -->
+  <div id="categoryDetailSection" class="section">
+    <button class="detail-back" onclick="backToCategorySelect()">&#8592;</button>
+    <div class="page-title" id="selectedCategoryTitle"></div>
+    <!-- Top Row with Buttons -->
+    <div class="category-detail-header">
+      <button class="btn" onclick="openForm(currentCategory)">Create New</button>
+      <button id="toggleButton" class="edit-btn" onclick="toggleEditMode(currentCategory)">Edit</button>
+    </div>
+    <!-- Grid for Subprojects -->
+    <div class="subprojects-grid" id="subprojectsGrid">
+      <!-- Subproject entries will be rendered here -->
+    </div>
+  </div>
+  
+  <!-- Form Section (unchanged) -->
   <div id="formSection" class="section">
     <div style="text-align: left;">
       <span class="form-back" onclick="cancelForm()">&#8592;</span>
@@ -257,14 +240,12 @@
     <h2 id="formTitle" style="text-align:center;">Create Subproject</h2>
     <div class="form-container">
       <input type="text" id="subName" placeholder="Subproject Name">
-      
       <!-- Entity Type Dropdown -->
       <select id="entityType">
         <option value="">Select Entity Type</option>
         <option value="FPO">FPO</option>
         <option value="VCO">VCO</option>
       </select>
-      
       <!-- District Dropdown with all 36 districts -->
       <select id="district">
         <option value="">Select District</option>
@@ -305,7 +286,6 @@
         <option value="Washim">Washim</option>
         <option value="Yavatmal">Yavatmal</option>
       </select>
-      
       <!-- Division Dropdown -->
       <select id="division">
         <option value="">Select Division</option>
@@ -318,35 +298,28 @@
         <option value="Pune">Pune</option>
         <option value="Ratnagiri">Ratnagiri</option>
       </select>
-      
       <input type="text" id="address" placeholder="Address">
       <input type="text" id="coordinates" placeholder="GPS Coordinates">
       <input type="text" id="outputComponent" placeholder="Subproject Components">
       <input type="text" id="eligibleCost" placeholder="">
-      
-      <!-- Removed Grant field -->
-      
-      <!-- Environmental Categorisation Dropdown (removed option A) -->
+      <!-- Environmental Categorisation Dropdown -->
       <select id="envCategory">
         <option value="">Select Environmental Categorisation</option>
         <option value="B">B</option>
         <option value="C">C</option>
       </select>
-      
-      <!-- Involuntary Resettlement Categorisation Dropdown (removed option A) -->
+      <!-- Involuntary Resettlement Categorisation Dropdown -->
       <select id="resettlementCategory">
         <option value="">Select Involuntary Resettlement Categorisation</option>
         <option value="B">B</option>
         <option value="C">C</option>
       </select>
-      
-      <!-- Indigenous People Categorisation Dropdown (removed option A) -->
+      <!-- Indigenous People Categorisation Dropdown -->
       <select id="indigenousCategory">
         <option value="">Select Indigenous People Categorisation</option>
         <option value="B">B</option>
         <option value="C">C</option>
       </select>
-      
       <div class="form-actions">
         <button class="btn" onclick="saveSubproject()">Save</button>
         <button id="deleteBtn" class="btn" style="display:none; background-color: #d32f2f;" onclick="deleteProject()">Delete</button>
@@ -354,7 +327,7 @@
     </div>
   </div>
   
-  <!-- Detail Section -->
+  <!-- Detail Section (New separate section) -->
   <div id="detailSection" class="section">
     <button class="detail-back" onclick="backToCategory()">&#8592;</button>
     <h2 id="detailTitle">Subproject Details</h2>
@@ -381,21 +354,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    // Mapping for toggle button IDs to maintain correct case
-    const toggleButtonIds = {
-      "Matching Grant": "toggleMatchingGrant",
-      "FIL Bank Of India": "toggleFilBankOfIndia",
-      "FIL Samunnati": "toggleFilSamunnati",
-      "FIL Federal Bank": "toggleFilFederalBank",
-      "FIL Nabkisan": "toggleFilNabkisan"
-    };
-    
     // Global state variables
     let currentCategory = '';
     let editMode = false; // true when editing a project via form
     let editId = null;
     let currentProjectData = null;
-    // Standardise keys to lowercase.
+    
+    // Mapping for edit mode per category
     const editEnabled = {
       "matching grant": false,
       "fil bank of india": false,
@@ -404,31 +369,45 @@
       "fil nabkisan": false
     };
     
-    // Toggle global edit mode for a category
+    // Open detail view for a category
+    function openCategoryDetail(category) {
+      currentCategory = category;
+      document.getElementById("selectedCategoryTitle").innerText = category + " Projects";
+      document.getElementById("categorySelectSection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.add("active");
+      loadSubprojectsForCategory();
+    }
+    
+    // Back from category detail to category selection
+    function backToCategorySelect() {
+      document.getElementById("categoryDetailSection").classList.remove("active");
+      document.getElementById("categorySelectSection").classList.add("active");
+    }
+    
+    // Toggle edit mode for the current category
     function toggleEditMode(category) {
       const catKey = category.toLowerCase();
       if (editEnabled[catKey]) {
         editEnabled[catKey] = false;
-        document.getElementById(toggleButtonIds[category]).innerText = "Edit";
+        document.getElementById("toggleButton").innerText = "Edit";
       } else {
         const pass = prompt("Enter password to enable editing for all projects in " + category + ":");
-        if (pass === "1111") {
+        if (pass === "Shield007!") {
           editEnabled[catKey] = true;
-          document.getElementById(toggleButtonIds[category]).innerText = "Exit Edit Mode";
+          document.getElementById("toggleButton").innerText = "Exit Edit Mode";
         } else {
           alert("Incorrect password.");
         }
       }
-      loadSubprojects();
+      loadSubprojectsForCategory();
     }
     
     // Open form for creating or editing a project
     function openForm(category, existingData = null, docId = null) {
       currentCategory = category;
-      document.getElementById("categorySection").classList.remove("active");
+      document.getElementById("categoryDetailSection").classList.remove("active");
       document.getElementById("formSection").classList.add("active");
       
-      // Set eligible cost placeholder and later label depending on category.
       if (currentCategory === "Matching Grant") {
         document.getElementById("eligibleCost").placeholder = "Subproject Cost";
       } else {
@@ -482,18 +461,21 @@
       document.getElementById("indigenousCategory").value = "";
     }
     
-    // Cancel the form and return to category view
+    // Cancel form and return to previous section
     function cancelForm() {
       document.getElementById("formSection").classList.remove("active");
       document.getElementById("deleteBtn").style.display = "none";
       editMode = false;
       editId = null;
       currentProjectData = null;
-      loadSubprojects();
-      document.getElementById("categorySection").classList.add("active");
+      if (currentCategory) {
+        document.getElementById("categoryDetailSection").classList.add("active");
+      } else {
+        document.getElementById("categorySelectSection").classList.add("active");
+      }
     }
     
-    // Save or update a project in Firestore
+    // Save or update subproject in Firestore
     async function saveSubproject() {
       const data = {
         name: document.getElementById("subName").value,
@@ -511,7 +493,6 @@
         timestamp: Date.now()
       };
       
-      // Check that all fields are filled in.
       if (
         !data.name.trim() ||
         !data.entityType.trim() ||
@@ -536,19 +517,21 @@
           await db.collection("subProjects").add(data);
         }
         cancelForm();
+        loadSubprojectsForCategory();
       } catch (error) {
         alert("Error saving data. Please try again.");
         console.error("Save failed:", error);
       }
     }
     
-    // Delete the current project (from edit form)
+    // Delete a project from Firestore
     async function deleteProject() {
       const pass = prompt("Enter password to delete the project:");
-      if (pass === "1111") {
+      if (pass === "Shield007!") {
         try {
           await db.collection("subProjects").doc(editId).delete();
           cancelForm();
+          loadSubprojectsForCategory();
         } catch (error) {
           alert("Error deleting project. Please try again.");
           console.error("Delete failed:", error);
@@ -558,81 +541,44 @@
       }
     }
     
-    // Render a project entry for a given category
-    function renderSubprojectEntry(id, data) {
-      // Compare the stored homepage division with the project's division.
+    // Load subprojects for the current category, with division filter reinstated
+    async function loadSubprojectsForCategory() {
+      document.getElementById("subprojectsGrid").innerHTML = "";
       const selectedDivision = (localStorage.getItem("selectedDivision") || "all").toLowerCase();
-      const projectDiv = (data.division || "").toLowerCase();
-      if (selectedDivision !== "all" && projectDiv !== selectedDivision) return;
-      
-      // Standardise the category to lowercase.
-      const cat = (data.category || "").toLowerCase();
-      let containerId = "";
-      switch (cat) {
-        case "matching grant":
-          containerId = "matchingGrantList";
-          break;
-        case "fil bank of india":
-          containerId = "filBankList";
-          break;
-        case "fil samunnati":
-          containerId = "filSamunnatiList";
-          break;
-        case "fil federal bank":
-          containerId = "filFederalBankList";
-          break;
-        case "fil nabkisan":
-          containerId = "filNabkisanList";
-          break;
-        default:
-          return;
-      }
-      
-      const container = document.getElementById(containerId);
-      const row = document.createElement("div");
-      row.className = "project-entry";
-      
-      const nameDiv = document.createElement("div");
-      nameDiv.className = "project-name";
-      
-      if (editEnabled[cat]) {
-        nameDiv.classList.add("edit-mode");
-        nameDiv.addEventListener("click", function() {
-          openForm(data.category, data, id);
-          document.getElementById("deleteBtn").style.display = "block";
-        });
-      } else {
-        nameDiv.addEventListener("click", function() {
-          openProjectDetail(id, data);
-        });
-      }
-      nameDiv.innerText = data.name;
-      
-      row.appendChild(nameDiv);
-      container.appendChild(row);
-    }
-    
-    // Load projects from Firestore, filtering by division and ordering by timestamp
-    async function loadSubprojects() {
-      document.getElementById("matchingGrantList").innerHTML = "";
-      document.getElementById("filBankList").innerHTML = "";
-      document.getElementById("filSamunnatiList").innerHTML = "";
-      document.getElementById("filFederalBankList").innerHTML = "";
-      document.getElementById("filNabkisanList").innerHTML = "";
-      
       const snapshot = await db.collection("subProjects").orderBy("timestamp", "desc").get();
       snapshot.forEach(doc => {
-        renderSubprojectEntry(doc.id, doc.data());
+        const data = doc.data();
+        if(data.category === currentCategory) {
+          const projectDivision = (data.division || "").toLowerCase();
+          // Check division filter; if selected division is not "all" and does not match the project's division, skip
+          if (selectedDivision !== "all" && projectDivision !== selectedDivision) return;
+          renderSubprojectEntry(doc.id, data);
+        }
       });
     }
     
-    // Open detail view for a project (normal mode)
+    // Render each subproject inside the grid
+    function renderSubprojectEntry(id, data) {
+      const entry = document.createElement("div");
+      entry.className = "project-entry";
+      if (editEnabled[currentCategory.toLowerCase()]) {
+        entry.classList.add("edit-mode");
+        entry.addEventListener("click", function() {
+          openForm(data.category, data, id);
+        });
+      } else {
+        entry.addEventListener("click", function() {
+          openProjectDetail(id, data);
+        });
+      }
+      entry.innerText = data.name;
+      document.getElementById("subprojectsGrid").appendChild(entry);
+    }
+    
+    // Open the detail view in a new section
     function openProjectDetail(id, data) {
-      // Set the current project data including the document ID.
       currentProjectData = { ...data, id };
-      // Save to localStorage so that other pages (like 3A and Audit) can load the data.
       localStorage.setItem("currentProjectData", JSON.stringify(currentProjectData));
-      
       document.getElementById("detailTitle").innerText = data.name;
       let detailsHtml = `<p><strong>Entity Type:</strong> ${data.entityType || ""}</p>`;
       detailsHtml += `<p><strong>District:</strong> ${data.district || ""}</p>`;
@@ -640,7 +586,6 @@
       detailsHtml += `<p><strong>Address:</strong> ${data.address || ""}</p>`;
       detailsHtml += `<p><strong>GPS Coordinates:</strong> ${data.coordinates || ""}</p>`;
       detailsHtml += `<p><strong>Subproject Components:</strong> ${data.outputComponent || ""}</p>`;
-      // Change cost label dynamically based on category.
       if(data.category === "Matching Grant"){
         detailsHtml += `<p><strong>Subproject Cost:</strong> ${data.eligibleCost || ""}</p>`;
       } else {
@@ -649,23 +594,22 @@
       detailsHtml += `<p><strong>Environmental Categorisation:</strong> ${data.envCategory || ""}</p>`;
       detailsHtml += `<p><strong>Involuntary Resettlement Categorisation:</strong> ${data.resettlementCategory || ""}</p>`;
       detailsHtml += `<p><strong>Indigenous People Categorisation:</strong> ${data.indigenousCategory || ""}</p>`;
-      // Removed the "Project Data" element.
       
       document.getElementById("detailInfo").innerHTML = detailsHtml;
       
-      // For Matching Grant, remove 3B button; otherwise, show it.
       if(data.category === "Matching Grant"){
         document.getElementById("env3bBtn").style.display = "none";
       } else {
         document.getElementById("env3bBtn").style.display = "inline-block";
       }
       
-      document.getElementById("categorySection").classList.remove("active");
+      // Hide both category detail & form sections and show the detail section.
+      document.getElementById("categoryDetailSection").classList.remove("active");
       document.getElementById("formSection").classList.remove("active");
       document.getElementById("detailSection").classList.add("active");
     }
     
-    // Detail navigation buttons (five buttons)
+    // Detail navigation buttons
     document.getElementById("env3aBtn").addEventListener("click", function() {
       window.location.href = "environment3a.html";
     });
@@ -682,18 +626,16 @@
       window.location.href = "auditMonitoring.html";
     });
     
-    // Back from detail view to category view
+    // Back from detail view to category detail view
     function backToCategory() {
       document.getElementById("detailSection").classList.remove("active");
-      document.getElementById("categorySection").classList.add("active");
+      document.getElementById("categoryDetailSection").classList.add("active");
     }
     
     // Back button in header to go to output selection section
     function goBackToOutputSelection() {
       window.location.href = "index.html#outputSection";
     }
-    
-    window.addEventListener("load", loadSubprojects);
   </script>
 </body>
 </html>
