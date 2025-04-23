@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Firebase and jsPDF Scripts -->
+  <!-- Firebase and jsPDF -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
@@ -14,7 +14,6 @@
   <!-- html2canvas for PDF rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* Base Styles */
     * { box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
@@ -22,171 +21,76 @@
       background: linear-gradient(to right, #e3f2fd, #fce4ec);
     }
     header {
-      background-color: #002569;
-      color: white;
+      background: #002569;
+      color: #fff;
       padding: 20px;
       text-align: center;
       position: relative;
     }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: 1px;
-    }
     .back-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 26px;
-      color: white;
-      cursor: pointer;
-      transition: color 0.2s ease;
+      position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; font-size: 26px; color: #fff; cursor: pointer;
     }
-    .back-icon:hover { color: #e0e0e0; }
     .report-container {
-      max-width: 900px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      text-align: left;
+      max-width: 900px; margin: 40px auto; background: #fff;
+      border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    .report-container h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    .report-container h2 { text-align: center; margin-bottom: 20px; }
     .report-container label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-      margin-bottom: 6px;
+      display: block; margin-top: 1rem; font-weight: 600; margin-bottom: 6px;
     }
     .report-container input[type="text"],
     .report-container textarea,
     .report-container input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      margin-bottom: 10px;
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
+      font-size: 14px; margin-bottom: 10px;
     }
     #photoPreview {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
     }
     .photo-thumb {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      overflow: hidden;
-      cursor: pointer;
+      position: relative; width: 100px; height: 100px; border: 1px solid #ccc;
+      border-radius: 6px; overflow: hidden; cursor: pointer;
     }
-    .photo-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .remove-photo {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: rgba(0,0,0,0.5);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 20px;
-      text-align: center;
+      position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5);
+      color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px;
+      cursor: pointer; font-size: 14px; line-height: 20px; text-align: center;
     }
-    /* Lightbox */
     #imageModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index:1000;
     }
     #imageModal img {
-      max-width: 90%;
-      max-height: 90%;
-      border: 4px solid white;
-      border-radius: 8px;
+      max-width: 90%; max-height: 90%; border: 4px solid #fff; border-radius: 8px;
     }
-    /* Table styling */
     .table-wrapper {
-      position: relative;
-      margin-top: 1rem;
+      position: relative; margin-top: 1rem;
     }
     .table-wrapper table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: auto;
+      width: 100%; border-collapse: collapse; table-layout: fixed;
     }
-    .table-wrapper thead {
-      background-color: #f2f2f2;
-    }
-    .table-wrapper th,
-    .table-wrapper td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      vertical-align: top;
-      overflow-wrap: break-word;
-      word-break: break-word;
+    .table-wrapper th, .table-wrapper td {
+      border: 1px solid #ccc; padding: 8px; vertical-align: top;
+      overflow-wrap: break-word; word-break: break-word;
     }
     .table-title {
-      background-color: #ddd;
-      font-weight: bold;
-      text-align: center;
-      padding: 5px;
+      background: #ddd; font-weight: bold; text-align: center; padding: 5px;
     }
-    /* Floating +/− buttons */
     .table-btn {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: none;
-      font-size: 20px;
-      line-height: 32px;
-      background: #1976d2;
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      position: absolute; width: 32px; height: 32px; border-radius: 50%;
+      border: none; font-size: 20px; line-height: 32px; background: #1976d2;
+      color: #fff; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     .table-btn:hover { background: #1565c0; }
     .table-btn.remove { bottom: -16px; left: 0; }
     .table-btn.add    { bottom: -16px; right: 0; }
-    /* General buttons */
     .btn {
-      padding: 10px 20px;
-      background-color: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s ease;
-      margin: 10px 5px 0 5px;
-      display: inline-block;
+      padding: 10px 20px; background: #1976d2; color: #fff; border: none;
+      border-radius: 6px; font-weight: bold; cursor: pointer; margin: 10px 5px 0;
     }
-    .btn:hover { background-color: #1565c0; }
+    .btn:hover { background: #1565c0; }
   </style>
 </head>
 <body>
@@ -198,35 +102,24 @@
   <div class="report-container">
     <h2>Audit & Monitoring Reports</h2>
     <form id="auditForm">
-      <label for="beneficiary">Subproject Name:</label>
+      <label>Subproject Name:</label>
       <input type="text" id="beneficiary" readonly />
-
-      <label for="address">Address:</label>
+      <label>Address:</label>
       <input type="text" id="address" readonly />
-
-      <label for="visitDate">Date of Site Visit:</label>
+      <label>Date of Site Visit:</label>
       <input type="text" id="visitDate" placeholder="DD/MM/YYYY" />
-
-      <label for="visitBy">Visit Conducted By:</label>
+      <label>Visit Conducted By:</label>
       <input type="text" id="visitBy" placeholder="Name of Visitor" />
-
-      <label for="photoUpload">Upload Photos (max 5):</label>
+      <label>Upload Photos:</label>
       <input type="file" id="photoUpload" accept="image/*" multiple />
       <div id="photoPreview"></div>
-
       <div id="imageModal"><img id="modalImage" src="" alt="Full view" /></div>
 
-      <!-- Main observations table with floating buttons -->
       <div class="table-wrapper">
         <table>
           <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
           <thead>
-            <tr>
-              <th>Sr. No.</th>
-              <th>Observations</th>
-              <th>Corrective Actions</th>
-              <th>Timeline</th>
-            </tr>
+            <tr><th>Sr. No.</th><th>Observations</th><th>Corrective Actions</th><th>Timeline</th></tr>
           </thead>
           <tbody id="observationTable"></tbody>
         </table>
@@ -235,7 +128,6 @@
       </div>
 
       <div id="uploadStatus" style="margin-top:10px; font-weight:bold; color:green;"></div>
-
       <div style="text-align:center; margin-top:20px;">
         <button type="button" class="btn" onclick="saveForm()">Save Entry</button>
       </div>
@@ -249,7 +141,7 @@
   </div>
 
   <script>
-    // Firebase init
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyDj33uT80Gz2PYDwh-J9NaGsenEAwQon04",
       authDomain: "environmental-audit-tracker.firebaseapp.com",
@@ -265,70 +157,58 @@
     let selectedPhotos = [];
     let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
 
-    // Row management
+    // Row controls
     function addRow() {
-      const tbody = document.getElementById("observationTable");
-      const i = tbody.rows.length;
+      const tb = document.getElementById("observationTable");
+      const i = tb.rows.length;
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${i+1}</td>
-        <td><textarea style="width:100%;"></textarea></td>
-        <td><textarea style="width:100%;"></textarea></td>
-        <td><textarea style="width:100%;"></textarea></td>
-      `;
-      tbody.appendChild(tr);
+        <td><textarea style="width:100%"></textarea></td>
+        <td><textarea style="width:100%"></textarea></td>
+        <td><textarea style="width:100%"></textarea></td>`;
+      tb.appendChild(tr);
     }
     function removeRow() {
-      const tbody = document.getElementById("observationTable");
-      if (tbody.rows.length > 1) {
-        tbody.removeChild(tbody.lastElementChild);
-        Array.from(tbody.rows).forEach((r,idx)=>r.cells[0].innerText = idx+1);
+      const tb = document.getElementById("observationTable");
+      if (tb.rows.length > 1) {
+        tb.removeChild(tb.lastElementChild);
+        Array.from(tb.rows).forEach((r,i)=> r.cells[0].innerText = i+1);
       }
     }
 
-    // Populate form
+    // Initialise form
     function populateAuditForm() {
       if (currentProjectData) {
         document.getElementById("beneficiary").value = currentProjectData.name || "";
-        document.getElementById("address").value = currentProjectData.address || "";
+        document.getElementById("address").value     = currentProjectData.address || "";
       }
       document.getElementById("visitDate").value = "";
-      document.getElementById("visitBy").value = "";
+      document.getElementById("visitBy").value   = "";
       selectedPhotos = [];
       document.getElementById("photoUpload").value = null;
       updatePhotoPreview();
-      const tbody = document.getElementById("observationTable");
-      tbody.innerHTML = "";
+      const tb = document.getElementById("observationTable");
+      tb.innerHTML = "";
       for (let i=0; i<5; i++) addRow();
       document.getElementById("uploadStatus").innerText = "";
     }
 
     // Photo preview
     function updatePhotoPreview() {
-      const preview = document.getElementById("photoPreview");
-      preview.innerHTML = "";
-      selectedPhotos.forEach((file, idx) => {
-        const div = document.createElement("div");
-        div.className = "photo-thumb";
-        const url = URL.createObjectURL(file);
-        const img = document.createElement("img");
-        img.src = url; img.onclick = () => showImage(url);
-        const btn = document.createElement("button");
-        btn.className = "remove-photo";
-        btn.innerText = "×";
-        btn.onclick = e => { e.stopPropagation(); selectedPhotos.splice(idx,1); updatePhotoPreview(); };
-        div.append(img, btn);
-        preview.append(div);
+      const p = document.getElementById("photoPreview");
+      p.innerHTML = "";
+      selectedPhotos.forEach((f,i)=>{
+        const d = document.createElement("div"); d.className="photo-thumb";
+        const url = URL.createObjectURL(f);
+        const img = document.createElement("img"); img.src=url; img.onclick=()=>showImage(url);
+        const btn = document.createElement("button"); btn.className="remove-photo"; btn.innerText="×";
+        btn.onclick = e => { e.stopPropagation(); selectedPhotos.splice(i,1); updatePhotoPreview(); };
+        d.append(img, btn); p.append(d);
       });
     }
     document.getElementById("photoUpload").addEventListener("change", e => {
-      Array.from(e.target.files).forEach(f => {
-        if (selectedPhotos.length < 5) selectedPhotos.push(f);
-      });
-      if (selectedPhotos.length > 5) {
-        alert("You can upload up to 5 photos only.");
-        selectedPhotos = selectedPhotos.slice(0,5);
-      }
+      Array.from(e.target.files).forEach(f => selectedPhotos.push(f));
       updatePhotoPreview();
       e.target.value = null;
     });
@@ -341,9 +221,9 @@
     });
 
     // Save form
-    async function uploadPhoto(file) {
-      const ref = storage.ref(`auditPhotos/${Date.now()}_${file.name}`);
-      const snap = await ref.put(file);
+    async function uploadPhoto(f) {
+      const ref = storage.ref(`auditPhotos/${Date.now()}_${f.name}`);
+      const snap = await ref.put(f);
       return snap.ref.getDownloadURL();
     }
     async function saveForm() {
@@ -351,10 +231,9 @@
       const a = document.getElementById("address").value;
       const d = document.getElementById("visitDate").value;
       const v = document.getElementById("visitBy").value;
-      const rows = document.querySelectorAll("#observationTable tr");
-      const obs = Array.from(rows).map(r => {
+      const obs = Array.from(document.querySelectorAll("#observationTable tr")).map(r=>{
         const t = r.querySelectorAll("textarea");
-        return { observation: t[0].value, action: t[1].value, timeline: t[2].value };
+        return { observation:t[0].value, action:t[1].value, timeline:t[2].value };
       });
       const pics = [];
       for (let f of selectedPhotos) {
@@ -362,11 +241,11 @@
         catch { alert("Error uploading photos."); return; }
       }
       try {
-        await db.collection("subProjects")
-          .doc(currentProjectData.id)
-          .collection("auditForms")
-          .add({ beneficiary: b, address: a, visitDate: d, visitBy: v,
-                 observations: obs, photoURLs: pics, timestamp: Date.now() });
+        await db.collection("subProjects").doc(currentProjectData.id)
+          .collection("auditForms").add({
+            beneficiary:b, address:a, visitDate:d, visitBy:v,
+            observations:obs, photoURLs:pics, timestamp:Date.now()
+          });
         document.getElementById("uploadStatus").innerText = "Form saved successfully!";
         setTimeout(()=>document.getElementById("uploadStatus").innerText="",3000);
         document.getElementById("auditForm").reset();
@@ -377,31 +256,28 @@
       }
     }
 
-    // Load entries
+    // Load saved entries (no title)
     async function loadSavedEntries() {
       const cont = document.getElementById("savedFormsContainer");
       cont.innerHTML = "";
       try {
-        const snap = await db.collection("subProjects")
-          .doc(currentProjectData.id)
-          .collection("auditForms")
-          .orderBy("timestamp","desc")
-          .get();
-        snap.forEach(doc => {
+        const snap = await db.collection("subProjects").doc(currentProjectData.id)
+          .collection("auditForms").orderBy("timestamp","desc").get();
+        snap.forEach(doc=>{
           const d = doc.data();
           const div = document.createElement("div");
-          div.id = "entry-" + doc.id;
-          div.style = "background:#fff;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:850px;margin:20px auto;";
+          div.id = "entry-"+doc.id;
+          div.style = "background:#fff;padding:20px;margin:20px auto;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:850px;";
           const ts = new Date(d.timestamp).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"});
-          let html = `<h3>Saved Entry</h3>
+          let html = `
             <p><strong>Created:</strong> ${ts}</p>
-            <p><strong>Project:</strong> ${d.beneficiary}</p>
+            <p><strong>Subproject:</strong> ${d.beneficiary}</p>
             <p><strong>Address:</strong> ${d.address}</p>
             <p><strong>Date:</strong> ${d.visitDate}</p>
             <p><strong>By:</strong> ${d.visitBy}</p>`;
           if (d.photoURLs?.length) {
             html += `<div><strong>Photos:</strong><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;">`;
-            d.photoURLs.forEach(u => {
+            d.photoURLs.forEach(u=>{
               html += `<div style="position:relative;width:100px;height:100px;border:1px solid #ccc;border-radius:6px;overflow:hidden;">
                 <img src="${u}" style="width:100%;height:100%;object-fit:cover;" onclick="showImage('${u}')"/>
                 <button class="btn" style="position:absolute;top:2px;right:2px;background:#d32f2f;padding:2px 6px;font-size:12px;" onclick="deletePhoto('${doc.id}','${u}')">×</button>
@@ -409,12 +285,10 @@
             });
             html += `</div></div>`;
           }
-          html += `<div class="table-wrapper">
-            <table>
-              <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
-              <thead><tr><th>Sr. No.</th><th>Observations</th><th>Actions</th><th>Timeline</th></tr></thead>
-              <tbody>`;
-          d.observations.forEach((o,i) => {
+          html += `<div class="table-wrapper"><table>
+            <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
+            <thead><tr><th>Sr. No.</th><th>Observations</th><th>Actions</th><th>Timeline</th></tr></thead><tbody>`;
+          d.observations.forEach((o,i)=>{
             html += `<tr><td>${i+1}</td><td>${o.observation}</td><td>${o.action}</td><td>${o.timeline}</td></tr>`;
           });
           html += `</tbody></table></div>
@@ -431,15 +305,14 @@
 
     async function deleteEntry(id) {
       const p = prompt("Password to delete:");
-      if (p !== "Shield007!") return alert("Wrong password");
+      if (p!=="Shield007!") return alert("Wrong password");
       await db.collection("subProjects").doc(currentProjectData.id)
         .collection("auditForms").doc(id).delete();
       loadSavedEntries();
     }
-
-    async function deletePhoto(docId, url) {
+    async function deletePhoto(docId,url) {
       const p = prompt("Password to remove photo:");
-      if (p !== "Shield007!") return alert("Wrong password");
+      if (p!=="Shield007!") return alert("Wrong password");
       try {
         await storage.refFromURL(url).delete();
         const ref = db.collection("subProjects").doc(currentProjectData.id)
@@ -447,50 +320,41 @@
         await ref.update({ photoURLs: firebase.firestore.FieldValue.arrayRemove(url) });
         loadSavedEntries();
       } catch {
-        alert("Error removing photo");
+        alert("Could not remove photo");
       }
     }
 
     // Inline edit
     function addInlineRow() {
       const tb = document.getElementById("inlineObservationTable");
-      const n = tb.rows.length + 1;
+      const n  = tb.rows.length + 1;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td>${n}</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td>`;
       tb.append(tr);
     }
     function removeInlineRow() {
       const tb = document.getElementById("inlineObservationTable");
-      if (tb.rows.length > 1) {
+      if (tb.rows.length>1) {
         tb.removeChild(tb.lastElementChild);
-        Array.from(tb.rows).forEach((r,i)=>r.cells[0].innerText = i+1);
+        Array.from(tb.rows).forEach((r,i)=> r.cells[0].innerText = i+1);
       }
     }
-
-    async function inlineEditAuditEntry(docId, container) {
+    async function inlineEditAuditEntry(docId,container) {
       const p = prompt("Password to edit:");
-      if (p !== "Shield007!") return alert("Wrong password");
-      const ref = db.collection("subProjects").doc(currentProjectData.id)
-        .collection("auditForms").doc(docId);
+      if (p!=="Shield007!") return alert("Wrong password");
+      const ref  = db.collection("subProjects").doc(currentProjectData.id)
+                      .collection("auditForms").doc(docId);
       const snap = await ref.get();
       if (!snap.exists) return alert("Not found");
       const d = snap.data();
-      const ts = new Date(d.timestamp).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"});
-      let html = `<h3>Edit Entry</h3>
-        <p><strong>Project:</strong> ${d.beneficiary}</p>
-        <p><strong>Address:</strong> ${d.address}</p>
-        <p><strong>Created:</strong> ${ts}</p>
-        <label>Date of Site Visit:</label>
-        <input type="text" id="inlineVisitDate" value="${d.visitDate||''}" />
-        <label>Visit By:</label>
-        <input type="text" id="inlineVisitBy" value="${d.visitBy||''}" />
+      let html = `
+        <label>Date of Site Visit:</label><input type="text" id="inlineVisitDate" value="${d.visitDate||''}"/>
+        <label>Visit By:</label><input type="text" id="inlineVisitBy" value="${d.visitBy||''}"/>
         <label>Observations:</label>
-        <div class="table-wrapper">
-          <table>
-            <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
-            <thead><tr><th>Sr. No.</th><th>Observations</th><th>Actions</th><th>Timeline</th></tr></thead>
-            <tbody id="inlineObservationTable">`;
-      d.observations.forEach((o,i) => {
+        <div class="table-wrapper"><table>
+          <caption class="table-title">Observations, Corrective Actions and Timelines</caption>
+          <thead><tr><th>Sr. No.</th><th>Observations</th><th>Actions</th><th>Timeline</th></tr></thead><tbody id="inlineObservationTable">`;
+      d.observations.forEach((o,i)=>{
         html += `<tr><td>${i+1}</td><td><textarea>${o.observation}</textarea></td><td><textarea>${o.action}</textarea></td><td><textarea>${o.timeline}</textarea></td></tr>`;
       });
       if (!d.observations.length) {
@@ -504,62 +368,60 @@
         <button class="btn" onclick="loadSavedEntries()">Cancel</button>`;
       container.innerHTML = html;
     }
-
-    async function inlineSaveAuditEntry(docId, container) {
+    async function inlineSaveAuditEntry(docId,container) {
       const d = container.querySelector("#inlineVisitDate").value;
       const v = container.querySelector("#inlineVisitBy").value;
-      const rows = container.querySelectorAll("#inlineObservationTable tr");
-      const obs = Array.from(rows).map(r=>{
+      const obs = Array.from(container.querySelectorAll("#inlineObservationTable tr")).map(r=>{
         const t = r.querySelectorAll("textarea");
-        return { observation: t[0].value, action: t[1].value, timeline: t[2].value };
+        return { observation:t[0].value, action:t[1].value, timeline:t[2].value };
       });
       await db.collection("subProjects").doc(currentProjectData.id)
         .collection("auditForms").doc(docId)
-        .update({ visitDate: d, visitBy: v, observations: obs, lastUpdated: Date.now() });
+        .update({ visitDate:d, visitBy:v, observations:obs, lastUpdated:Date.now() });
       loadSavedEntries();
     }
 
-    // Refined PDF export
-    function generatePDF(elem, filename) {
-      // clone and strip buttons
+    // Refined PDF export with injected title
+    function generatePDF(elem,filename) {
       const clone = elem.cloneNode(true);
-      clone.querySelectorAll('button.btn, button.table-btn').forEach(b=>b.remove());
-      // attach hidden wrapper
-      const wrap = document.createElement('div');
-      wrap.style.visibility = 'hidden';
-      wrap.style.position = 'fixed';
-      wrap.style.top = '0'; wrap.style.left = '0';
+      // remove all buttons
+      clone.querySelectorAll("button").forEach(b=>b.remove());
+      // inject title at top
+      const title = document.createElement("h3");
+      title.innerText = "Audit and Monitoring Report";
+      title.style.textAlign = "center";
+      title.style.marginBottom = "20px";
+      clone.prepend(title);
+      // ensure tables fit
+      clone.querySelectorAll("table").forEach(t=>{
+        t.style.tableLayout="fixed"; t.style.width="100%";
+      });
+      const wrap = document.createElement("div");
+      wrap.style.visibility="hidden"; wrap.style.position="fixed"; wrap.style.top=0; wrap.style.left=0;
       wrap.appendChild(clone);
       document.body.appendChild(wrap);
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p','pt','a4');
-      doc.html(clone, {
-        callback: d => {
-          d.save(filename);
-          document.body.removeChild(wrap);
-        },
-        x: 10, y: 10,
-        html2canvas: { scale: 0.8 }
+      const doc = new jsPDF("p","pt","a4");
+      doc.html(clone,{
+        callback: d=>{ d.save(filename); document.body.removeChild(wrap); },
+        x:10, y:10, html2canvas:{ scale:0.8 }
       });
     }
-    async function exportToPDF() {
-      const container = document.getElementById('savedFormsContainer');
-      generatePDF(container, 'audit_reports.pdf');
+    function exportToPDF() {
+      const c = document.getElementById("savedFormsContainer");
+      generatePDF(c,"audit_reports.pdf");
     }
-    async function exportEntryPDF(id) {
-      const entry = document.getElementById('entry-' + id);
-      if (!entry) return alert('Entry not found.');
-      generatePDF(entry, `audit_entry_${id}.pdf`);
+    function exportEntryPDF(id) {
+      const e = document.getElementById("entry-"+id);
+      if (!e) return alert("Entry not found");
+      generatePDF(e,`audit_entry_${id}.pdf`);
     }
 
     function goBack() { window.history.back(); }
 
-    // Init
-    window.addEventListener("load", () => {
+    window.addEventListener("load", ()=>{
       if (!currentProjectData?.id) {
-        alert("No subproject selected. Please select one.");
-        window.location.href = "output1.html";
-        return;
+        alert("No subproject selected."); location.href="output1.html"; return;
       }
       populateAuditForm();
       loadSavedEntries();
