@@ -102,10 +102,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(), storage = firebase.storage();
 
-    let selectedPhotos = [];  // { file, label }
+    let selectedPhotos = [];
     let currentProjectData = JSON.parse(localStorage.getItem("currentProjectData"));
 
-    // Photo upload & label
     document.getElementById("photoUpload").addEventListener("change", e => {
       Array.from(e.target.files).forEach(f => selectedPhotos.push({ file: f, label: "" }));
       updatePhotoPreview();
@@ -133,7 +132,6 @@
       document.getElementById("imageModal").style.display = "none";
     });
 
-    // Table row controls
     function addRow(){
       const tb=document.getElementById("observationTable"), i=tb.rows.length, tr=document.createElement("tr");
       tr.innerHTML=`<td>${i+1}</td><td><textarea style="width:100%"></textarea></td><td><textarea style="width:100%"></textarea></td><td><textarea style="width:100%"></textarea></td>`;
@@ -156,7 +154,6 @@
       document.getElementById("uploadStatus").innerText="";
     }
 
-    // Save form
     async function uploadPhoto(f){ const ref=storage.ref(`auditPhotos/${Date.now()}_${f.name}`),snap=await ref.put(f); return snap.ref.getDownloadURL(); }
     async function saveForm(){
       const b=document.getElementById("beneficiary").value,a=document.getElementById("address").value,
@@ -179,7 +176,6 @@
       }catch{ alert("Error saving form."); }
     }
 
-    // Load saved entries
     async function loadSavedEntries(){
       const cont=document.getElementById("savedFormsContainer"); cont.innerHTML="";
       try{
@@ -212,7 +208,6 @@
       await db.collection("subProjects").doc(currentProjectData.id).collection("auditForms").doc(id).delete(); loadSavedEntries();
     }
 
-    // Inline edit
     function addInlineRow(){ const tb=document.getElementById("inlineObservationTable"),n=tb.rows.length+1,tr=document.createElement("tr");
       tr.innerHTML=`<td>${n}</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td>`; tb.append(tr);
     }
@@ -241,48 +236,70 @@
       loadSavedEntries();
     }
 
-    // PDF export
-    function generatePDF(elem, filename){
-      // off-screen container
+    // --- NEW PDF export using html2canvas + addImage slicing ---
+    async function generatePDF(elem, filename){
+      // clone the element off-screen
       const wrap = document.createElement("div");
       wrap.style.position = "absolute";
       wrap.style.left = "-10000px";
       wrap.style.top = "0";
-      wrap.style.width = "550px";
-      wrap.style.opacity = "0";
-      // clone content
+      wrap.style.width = "800px";
+      document.body.appendChild(wrap);
+
       const clone = elem.cloneNode(true);
-      // remove buttons
+      // strip out buttons
       clone.querySelectorAll("button").forEach(b=>b.remove());
-      // remove Created:
-      clone.querySelectorAll("p").forEach(p=>{
-        const s=p.querySelector("strong");
-        if(s && s.innerText.includes("Created")) p.remove();
-      });
-      // add title
+      // add title at top
       const title = document.createElement("h3");
-      title.innerText = "Audit and Monitoring Report";
+      title.innerText = "Audit & Monitoring Report";
       title.style.textAlign = "center";
       title.style.marginBottom = "20px";
       clone.prepend(title);
-      // fix tables
-      clone.querySelectorAll("table").forEach(t=>{
-        t.style.tableLayout = "fixed";
-        t.style.width = "100%";
-        t.querySelectorAll("th:first-child, td:first-child").forEach(c=>c.style.width="5%");
-      });
+
       wrap.appendChild(clone);
-      document.body.appendChild(wrap);
+
+      // render to canvas
+      const canvas = await html2canvas(clone, { scale: 0.8 });
+      const imgData = canvas.toDataURL("image/png");
+
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF("p","pt","a4");
-      doc.html(wrap, {
-        callback: d => { d.save(filename); document.body.removeChild(wrap); },
-        x: 20, y: 20,
-        html2canvas: { scale: 0.8 }
-      });
+      const doc = new jsPDF("p","mm","a4");
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      // calculate image size in mm
+      const pxPerMm = canvas.width / (pageWidth * (96/25.4)); 
+      const imgWidthMm = pageWidth - 20; 
+      const imgHeightMm = canvas.height / pxPerMm * (imgWidthMm / (canvas.width / pxPerMm));
+
+      let heightLeft = imgHeightMm;
+      let position = 10;
+
+      doc.addImage(imgData, "PNG", 10, position, imgWidthMm, imgHeightMm);
+      heightLeft -= (pageHeight - 20);
+
+      while(heightLeft > 0){
+        doc.addPage();
+        position = heightLeft * -1 + 10;
+        doc.addImage(imgData, "PNG", 10, position, imgWidthMm, imgHeightMm);
+        heightLeft -= (pageHeight - 20);
+      }
+
+      doc.save(filename);
+      document.body.removeChild(wrap);
     }
-    function exportToPDF(){ generatePDF(document.getElementById("savedFormsContainer"), "audit_reports.pdf"); }
-    function exportEntryPDF(id){ const e=document.getElementById("entry-"+id); if(!e) return alert("Entry not found"); generatePDF(e, `audit_entry_${id}.pdf`); }
+
+    function exportToPDF(){ 
+      const container = document.getElementById("savedFormsContainer");
+      if(!container.children.length) return alert("No entries to export");
+      generatePDF(container, "audit_reports.pdf");
+    }
+    function exportEntryPDF(id){ 
+      const e=document.getElementById("entry-"+id); 
+      if(!e) return alert("Entry not found"); 
+      generatePDF(e, `audit_entry_${id}.pdf`);
+    }
+    // ----------------------------------------------------------
 
     function goBack(){ window.history.back(); }
     window.addEventListener("load", ()=>{ 
